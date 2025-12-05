@@ -11,4 +11,5 @@
         http://www.liquibase.org/xml/ns/pro
         http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
     <include file="init-changelog.xml" relativeToChangelogFile="true"/>
+    <include file="data/001_data-insert-test-users.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
