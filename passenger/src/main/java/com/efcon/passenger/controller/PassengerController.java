@@ -3,6 +3,8 @@ package com.efcon.passenger.controller;
 import com.efcon.passenger.dto.PassengerRequestDTO;
 import com.efcon.passenger.dto.PassengerResponseDTO;
 import com.efcon.passenger.service.PassengerService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,5 +47,17 @@ public class PassengerController {
     @ExceptionHandler(exception = NoSuchElementException.class)
     public ResponseEntity<String> passengerNotFound(NoSuchElementException exception) {
         return ResponseEntity.status(404).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(exception = ConstraintViolationException.class)
+    public ResponseEntity<String> passengerNotFound(ConstraintViolationException exception) {
+        StringBuilder message = new StringBuilder("Invalid data passed: \n");
+        for (ConstraintViolation<?> violation: exception.getConstraintViolations()) {
+            message.append(violation.getPropertyPath())
+                    .append(" -- ")
+                    .append(violation.getMessage())
+                    .append('\n');
+        }
+        return ResponseEntity.status(400).body(message.toString());
     }
 }
