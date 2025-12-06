@@ -15,6 +15,7 @@ target/
 
 ### IntelliJ IDEA ###
 .idea
+.gigaide
 *.iws
 *.iml
 *.ipr
@@ -31,3 +32,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+config/secrets.properties
+src/main/resources/liquibase.properties
