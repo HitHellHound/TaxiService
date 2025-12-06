@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="create-ride-status-enum" author="cie">
+        <sql>
+            CREATE TYPE ride_status AS ENUM (
+            'CREATED',
+            'ACCEPTED',
+            'DRIVING_TO_PASSENGER',
+            'DRIVING_TO_DESTINATION',
+            'COMPLETED',
+            'CANCELED'
+            );
+        </sql>
+
+        <rollback>
+            DROP TYPE ride_status;
+        </rollback>
+    </changeSet>
+    <changeSet id="init-rides-schema" author="cie">
+        <createTable tableName="ride">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_ride"/>
+            </column>
+
+            <column name="driver_id" type="BIGINT"/>
+
+            <column name="passenger_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="start_address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="destination_address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="ride_status">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="price" type="NUMERIC(10,2)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="deleted_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="add-ride-driver-id-index" author="cie">
+        <createIndex
+                indexName="idx_ride_driver_id"
+                tableName="ride">
+            <column name="driver_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="add-ride-passenger-id-index" author="cie">
+        <createIndex
+                indexName="idx_ride_passenger_id"
+                tableName="ride">
+            <column name="passenger_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="add-active-ride-unique-driver-index" author="cie">
+        <sql>
+            CREATE UNIQUE INDEX idx_unq_active_ride_driver
+            ON ride(driver_id)
+            WHERE deleted_at IS NULL
+            AND status NOT IN ('COMPLETED', 'CANCELED');
+        </sql>
+
+        <rollback>
+            DROP INDEX idx_unq_active_ride_driver;
+        </rollback>
+    </changeSet>
+    <changeSet id="add-active-and-completed-ride-driver-not-null-check" author="cie">
+        <sql>
+            ALTER TABLE ride
+            ADD CONSTRAINT chk_active_and_completed_ride_not_null_driver
+            CHECK (NOT (driver_id IS NULL AND status NOT IN ('CREATED', 'CANCELED')));
+        </sql>
+
+        <rollback>
+            ALTER TABLE ride DROP CONSTRAINT chk_active_and_completed_ride_not_null_driver;
+        </rollback>
+    </changeSet>
+    <changeSet id="add-ride-price-non-negative-check" author="cie">
+        <sql>
+            ALTER TABLE ride
+            ADD CONSTRAINT chk_non_negative_ride_price
+            CHECK (price >= 0);
+        </sql>
+
+        <rollback>
+            ALTER TABLE ride DROP CONSTRAINT chk_non_negative_ride_price;
+        </rollback>
+    </changeSet>
+    <changeSet id="init-schema-created-tag" author="cie">
+        <tagDatabase tag="init_schema_created"/>
+    </changeSet>
+</databaseChangeLog>
