@@ -1,4 +1,6 @@
 package com.efcon.ride.dto;
 
-public record DriverAssignmentDto(Long driverId) {
+import jakarta.validation.constraints.NotNull;
+
+public record DriverAssignmentDto(@NotNull Long driverId) {
 }

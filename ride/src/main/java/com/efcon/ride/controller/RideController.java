@@ -5,6 +5,7 @@ import com.efcon.ride.dto.RideRequestDTO;
 import com.efcon.ride.dto.RideResponseDTO;
 import com.efcon.ride.service.CRUDService;
 import com.efcon.ride.service.RideService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class RideController extends AbstractCRUDController<RideRequestDTO, RideR
     private final RideService service;
 
     @PostMapping("/{id}/accept")
-    public RideResponseDTO acceptRide(@PathVariable long id, @RequestBody DriverAssignmentDto driver) {
+    public RideResponseDTO acceptRide(@PathVariable long id, @RequestBody @Valid DriverAssignmentDto driver) {
         return service.accept(id, driver.driverId());
     }
 

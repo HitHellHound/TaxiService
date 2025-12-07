@@ -1,6 +1,8 @@
 package com.efcon.ride.controller;
 
 import com.efcon.ride.service.CRUDService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,5 +41,17 @@ public abstract class AbstractCRUDController<K, T> {
     @ExceptionHandler(exception = NoSuchElementException.class)
     public ResponseEntity<String> entityNotFound(NoSuchElementException exception) {
         return ResponseEntity.status(404).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(exception = ConstraintViolationException.class)
+    public ResponseEntity<String> passengerNotFound(ConstraintViolationException exception) {
+        StringBuilder message = new StringBuilder("Invalid data passed: \n");
+        for (ConstraintViolation<?> violation: exception.getConstraintViolations()) {
+            message.append(violation.getPropertyPath())
+                    .append(" -- ")
+                    .append(violation.getMessage())
+                    .append('\n');
+        }
+        return ResponseEntity.status(400).body(message.toString());
     }
 }
