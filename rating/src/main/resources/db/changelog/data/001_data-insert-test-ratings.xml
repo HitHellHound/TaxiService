@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/mongodb
+        http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+    <changeSet id="insert-test-ratings" author="cie">
+        <mongodb:insertMany collectionName="rating">
+            <mongodb:documents>
+                [
+                    {
+                        "_id": { "$numberLong": "1" },
+                        "passengerScore": 5,
+                        "passengerComment": "Отличная поездка, водитель приехал быстро",
+                        "driverScore": 5,
+                        "driverComment": "Пассажир вышел вовремя, поездка прошла спокойно"
+                    },
+                    {
+                        "_id": { "$numberLong": "2" },
+                        "driverScore": 4,
+                    },
+                    {
+                        "_id": { "$numberLong": "3" },
+                        "passengerScore": 3,
+                    },
+                    {
+                        "_id": { "$numberLong": "4" },
+                        "passengerScore": 2,
+                        "driverScore": 3,
+                        "driverComment": "Пассажир нервничал, но в целом всё ок"
+                    },
+                    {
+                        "_id": { "$numberLong": "5" },
+                        "passengerScore": 1,
+                        "passengerComment": "Авто грязное, не понравилось",
+                        "driverScore": 2,
+                    },
+                    {
+                        "_id": { "$numberLong": "6" },
+                        "passengerScore": 5,
+                        "passengerComment": "Приятный водитель, помог с багажом",
+                        "driverScore": 5,
+                        "driverComment": "Отличный пассажир, рекомендую"
+                    },
+                    {
+                        "_id": { "$numberLong": "7" },
+                        "passengerScore": 4,
+                        "passengerComment": "Маршрут был немного длиннее, чем ожидал",
+                    },
+                    {
+                        "_id": { "$numberLong": "8" },
+                        "driverScore": 3,
+                        "driverComment": "Пассажир спокойный, без особенностей"
+                    }
+                ]
+            </mongodb:documents>
+        </mongodb:insertMany>
+        <rollback>
+            <mongodb:runCommand>
+                <mongodb:command>
+                    {
+                        delete: "rating",
+                        deletes: [
+                            {
+                                q: { "_id": { "$in": [1,2,3,4,5,6,7,8] } },
+                                limit: 0
+                            }
+                        ]
+                    }
+                </mongodb:command>
+            </mongodb:runCommand>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
+
