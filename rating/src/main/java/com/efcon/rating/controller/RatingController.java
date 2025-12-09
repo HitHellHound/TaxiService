@@ -3,6 +3,8 @@ package com.efcon.rating.controller;
 import com.efcon.rating.dto.RatingRequestDTO;
 import com.efcon.rating.dto.RatingResponseDTO;
 import com.efcon.rating.service.RatingService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,5 +59,17 @@ public class RatingController {
     @ExceptionHandler(exception = NoSuchElementException.class)
     public ResponseEntity<String> entityNotFound(NoSuchElementException exception) {
         return ResponseEntity.status(404).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(exception = ConstraintViolationException.class)
+    public ResponseEntity<String> passengerNotFound(ConstraintViolationException exception) {
+        StringBuilder message = new StringBuilder("Invalid data passed: \n");
+        for (ConstraintViolation<?> violation: exception.getConstraintViolations()) {
+            message.append(violation.getPropertyPath())
+                    .append(" -- ")
+                    .append(violation.getMessage())
+                    .append('\n');
+        }
+        return ResponseEntity.status(400).body(message.toString());
     }
 }
