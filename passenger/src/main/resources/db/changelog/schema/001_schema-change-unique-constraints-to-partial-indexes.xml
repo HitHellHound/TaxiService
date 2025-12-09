@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/pro
+        http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd">
+    <changeSet id="001_schema-drop-old-passenger-email-unq-constraint" author="cie">
+        <dropUniqueConstraint tableName="passenger" constraintName="unq_passenger_email"/>
+        <rollback>
+            <addUniqueConstraint tableName="passenger"
+                                 columnNames="email"
+                                 constraintName="unq_passenger_email"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="001_schema-drop-old-passenger-phone-unq-constraint" author="cie">
+        <dropUniqueConstraint tableName="passenger" constraintName="unq_passenger_phone"/>
+        <rollback>
+            <addUniqueConstraint tableName="passenger"
+                                 columnNames="phone"
+                                 constraintName="unq_passenger_phone"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="001_schema-drop-old-passenger-email-index" author="cie">
+        <dropIndex tableName="passenger" indexName="idx_passenger_email"/>
+        <rollback>
+            <createIndex indexName="idx_passenger_email"
+                         tableName="passenger"
+                         unique="true">
+                <column name="email"/>
+            </createIndex>
+        </rollback>
+    </changeSet>
+    <changeSet id="001_schema-drop-old-passenger-phone-index" author="cie">
+        <dropIndex tableName="passenger" indexName="idx_passenger_phone"/>
+        <rollback>
+            <createIndex indexName="idx_passenger_phone"
+                         tableName="passenger"
+                         unique="true">
+                <column name="phone"/>
+            </createIndex>
+        </rollback>
+    </changeSet>
+    <changeSet id="001_schema-add-passenger-email-partial-unique-index" author="cie">
+        <sql>
+            CREATE UNIQUE INDEX idx_prt_unq_passenger_email
+            ON passenger(email)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <dropIndex tableName="passenger" indexName="idx_prt_unq_passenger_email"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="001_schema-add-passenger-phone-partial-unique-index" author="cie">
+        <sql>
+            CREATE UNIQUE INDEX idx_prt_unq_passenger_phone
+            ON passenger(phone)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <dropIndex tableName="passenger" indexName="idx_prt_unq_passenger_phone"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="soft-delete-unique-constraint-issue-fixed" author="cie">
+        <tagDatabase tag="soft_delete_unique_constraint_issue_fixed"/>
+    </changeSet>
+</databaseChangeLog>
