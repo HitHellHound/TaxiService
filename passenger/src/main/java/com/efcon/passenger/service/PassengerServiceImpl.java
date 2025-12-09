@@ -8,43 +8,24 @@ import com.efcon.passenger.repository.PassengerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-
 @Service
 @RequiredArgsConstructor
-public class PassengerServiceImpl implements PassengerService {
+public class PassengerServiceImpl extends AbstractCRUDService<Passenger, PassengerRequestDTO, PassengerResponseDTO> implements PassengerService {
     private final PassengerRepository repository;
     private final PassengerMapper passengerMapper;
 
     @Override
-    public List<PassengerResponseDTO> getAll() {
-        return passengerMapper.toResponseDtoList(repository.findAll());
+    protected PassengerRepository getRepository() {
+        return repository;
     }
 
     @Override
-    public PassengerResponseDTO get(Long id) {
-        Passenger passenger = repository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Passenger with id " + id + " not found"));
-        return passengerMapper.toResponseDto(passenger);
+    protected PassengerMapper getMapper() {
+        return passengerMapper;
     }
 
     @Override
-    public PassengerResponseDTO create(PassengerRequestDTO passengerDTO) {
-        Passenger newPassenger = passengerMapper.fromRequestDto(passengerDTO);
-        return passengerMapper.toResponseDto(repository.save(newPassenger));
-    }
-
-    @Override
-    public PassengerResponseDTO update(Long id, PassengerRequestDTO passengerDTO) {
-        Passenger passenger = repository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Passenger with id " + id + " not found"));
-        passengerMapper.updateEntityFromDto(passengerDTO, passenger);
-        return passengerMapper.toResponseDto(repository.save(passenger));
-    }
-
-    @Override
-    public void delete(Long id) {
-        repository.deleteById(id);
+    protected String getEntityName() {
+        return "Passenger";
     }
 }
