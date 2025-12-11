@@ -1,53 +1,70 @@
 package com.efcon.ride.controller;
 
-import com.efcon.ride.dto.DriverAssignmentDto;
-import com.efcon.ride.dto.RideRequestDTO;
-import com.efcon.ride.dto.RideResponseDTO;
-import com.efcon.ride.service.CRUDService;
+import com.efcon.ride.dto.DriverAssignment;
+import com.efcon.ride.dto.RideRequest;
+import com.efcon.ride.dto.RideResponse;
 import com.efcon.ride.service.RideService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/rides")
+@RequestMapping("/api/v1/rides")
 @RequiredArgsConstructor
-public class RideController extends AbstractCRUDController<RideRequestDTO, RideResponseDTO> {
+public class RideController {
     private final RideService service;
 
+    @GetMapping
+    public List<RideResponse> getAll() {
+        return service.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public RideResponse getById(@PathVariable long id) {
+        return service.get(id);
+    }
+
+    @PostMapping
+    public ResponseEntity<RideResponse> create(@RequestBody @Valid RideRequest rideRequest) {
+        return ResponseEntity.status(201).body(service.create(rideRequest));
+    }
+
+    @PutMapping("/{id}")
+    public RideResponse update(@PathVariable long id, @RequestBody @Valid RideRequest rideRequest) {
+        return service.update(id, rideRequest);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{id}/accept")
-    public RideResponseDTO acceptRide(@PathVariable long id, @RequestBody @Valid DriverAssignmentDto driver) {
+    public RideResponse acceptRide(@PathVariable long id, @RequestBody @Valid DriverAssignment driver) {
         return service.accept(id, driver.driverId());
     }
 
     @PostMapping("/{id}/drive-to-passenger")
-    public RideResponseDTO driveToPassenger(@PathVariable long id) {
+    public RideResponse driveToPassenger(@PathVariable long id) {
         return service.driveToPassenger(id);
     }
 
     @PostMapping("/{id}/drive-to-destination")
-    public RideResponseDTO driveToDestination(@PathVariable long id) {
+    public RideResponse driveToDestination(@PathVariable long id) {
         return service.driveToDestination(id);
     }
 
     @PostMapping("/{id}/complete")
-    public RideResponseDTO completeRide(@PathVariable long id) {
+    public RideResponse completeRide(@PathVariable long id) {
         return service.complete(id);
     }
 
     @PostMapping("/{id}/cancel")
-    public RideResponseDTO cancelRide(@PathVariable long id) {
+    public RideResponse cancelRide(@PathVariable long id) {
         return service.cancel(id);
-    }
-
-    @ExceptionHandler(exception = IllegalStateException.class)
-    public ResponseEntity<String> illegalStatusTransition(IllegalStateException exception) {
-        return ResponseEntity.status(409).body(exception.getMessage());
-    }
-
-    @Override
-    protected CRUDService<RideRequestDTO, RideResponseDTO> getService() {
-        return service;
     }
 }

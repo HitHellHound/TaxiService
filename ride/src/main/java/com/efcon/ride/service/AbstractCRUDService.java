@@ -1,10 +1,10 @@
 package com.efcon.ride.service;
 
+import com.efcon.ride.exception.EntityNotFoundException;
 import com.efcon.ride.mapper.CRUDMapper;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public abstract class AbstractCRUDService<E, T, K> implements CRUDService<T, K> {
     protected abstract JpaRepository<E, Long> getRepository();
@@ -13,28 +13,28 @@ public abstract class AbstractCRUDService<E, T, K> implements CRUDService<T, K> 
 
     @Override
     public List<K> getAll() {
-        return getMapper().toResponseDtoList(getRepository().findAll());
+        return getMapper().toResponseList(getRepository().findAll());
     }
 
     @Override
     public K get(Long id) {
         E entity = getRepository().findById(id)
-                .orElseThrow(() -> new NoSuchElementException(getEntityName() + " with id " + id + " not found"));
-        return getMapper().toResponseDto(entity);
+                .orElseThrow(() -> new EntityNotFoundException(getEntityName() + " with id " + id + " not found"));
+        return getMapper().toResponse(entity);
     }
 
     @Override
-    public K create(T dto) {
-        E newEntity = getMapper().fromRequestDto(dto);
-        return getMapper().toResponseDto(getRepository().save(newEntity));
+    public K create(T request) {
+        E newEntity = getMapper().fromRequest(request);
+        return getMapper().toResponse(getRepository().save(newEntity));
     }
 
     @Override
-    public K update(Long id, T dto) {
+    public K update(Long id, T request) {
         E entity = getRepository().findById(id)
-                .orElseThrow(() -> new NoSuchElementException(getEntityName() + " with id " + id + " not found"));
-        getMapper().updateEntityFromDto(dto, entity);
-        return getMapper().toResponseDto(getRepository().save(entity));
+                .orElseThrow(() -> new EntityNotFoundException(getEntityName() + " with id " + id + " not found"));
+        getMapper().updateEntityFromRequest(request, entity);
+        return getMapper().toResponse(getRepository().save(entity));
     }
 
     @Override
