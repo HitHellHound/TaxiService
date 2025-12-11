@@ -1,30 +1,28 @@
 package com.efcon.rating.controller;
 
-import com.efcon.rating.dto.RatingRequestDTO;
-import com.efcon.rating.dto.RatingResponseDTO;
+import com.efcon.rating.dto.RatingRequest;
+import com.efcon.rating.dto.RatingResponse;
 import com.efcon.rating.service.RatingService;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/ratings")
+@RequestMapping("/api/v1/ratings")
 @RequiredArgsConstructor
 public class RatingController {
     private final RatingService service;
 
     @GetMapping
-    public List<RatingResponseDTO> getAllRatings() {
+    public List<RatingResponse> getAllRatings() {
         return service.getAllRatings();
     }
 
     @GetMapping("/{id}")
-    public RatingResponseDTO getRating(@PathVariable long id) {
+    public RatingResponse getRating(@PathVariable long id) {
         return service.getRating(id);
     }
 
@@ -35,12 +33,12 @@ public class RatingController {
     }
 
     @PutMapping("/{id}/passenger-rating")
-    public ResponseEntity<RatingResponseDTO> putPassengerRating(@PathVariable long id, @RequestBody RatingRequestDTO passengerRating) {
+    public ResponseEntity<RatingResponse> putPassengerRating(@PathVariable long id, @RequestBody @Valid RatingRequest passengerRating) {
         return ResponseEntity.status(201).body(service.putPassengerRating(id, passengerRating));
     }
 
     @PutMapping("/{id}/driver-rating")
-    public ResponseEntity<RatingResponseDTO> putDriverRating(@PathVariable long id, @RequestBody RatingRequestDTO driverRating) {
+    public ResponseEntity<RatingResponse> putDriverRating(@PathVariable long id, @RequestBody @Valid RatingRequest driverRating) {
         return ResponseEntity.status(201).body(service.putDriverRating(id, driverRating));
     }
 
@@ -54,22 +52,5 @@ public class RatingController {
     public ResponseEntity<Void> deleteDriverRating(@PathVariable long id) {
         service.deleteDriverRating(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler(exception = NoSuchElementException.class)
-    public ResponseEntity<String> entityNotFound(NoSuchElementException exception) {
-        return ResponseEntity.status(404).body(exception.getMessage());
-    }
-
-    @ExceptionHandler(exception = ConstraintViolationException.class)
-    public ResponseEntity<String> passengerNotFound(ConstraintViolationException exception) {
-        StringBuilder message = new StringBuilder("Invalid data passed: \n");
-        for (ConstraintViolation<?> violation: exception.getConstraintViolations()) {
-            message.append(violation.getPropertyPath())
-                    .append(" -- ")
-                    .append(violation.getMessage())
-                    .append('\n');
-        }
-        return ResponseEntity.status(400).body(message.toString());
     }
 }

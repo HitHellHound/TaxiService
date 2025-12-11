@@ -1,18 +1,18 @@
 package com.efcon.rating.service;
 
-import com.efcon.rating.dto.RatingRequestDTO;
-import com.efcon.rating.dto.RatingResponseDTO;
+import com.efcon.rating.dto.RatingRequest;
+import com.efcon.rating.dto.RatingResponse;
 
 import java.util.List;
 
 public interface RatingService {
-    RatingResponseDTO getRating(Long id);
-    List<RatingResponseDTO> getAllRatings();
+    RatingResponse getRating(Long id);
+    List<RatingResponse> getAllRatings();
 
     void deleteRating(Long id);
 
-    RatingResponseDTO putPassengerRating(Long id, RatingRequestDTO passengerRating);
-    RatingResponseDTO putDriverRating(Long id, RatingRequestDTO driverRating);
+    RatingResponse putPassengerRating(Long id, RatingRequest passengerRating);
+    RatingResponse putDriverRating(Long id, RatingRequest driverRating);
 
     void deletePassengerRating(Long id);
     void deleteDriverRating(Long id);
