@@ -1,9 +1,9 @@
 package com.efcon.driver.service;
 
-import com.efcon.driver.dto.DriverRequestDTO;
-import com.efcon.driver.dto.DriverResponseDTO;
+import com.efcon.driver.dto.DriverRequest;
+import com.efcon.driver.dto.DriverResponse;
 
-public interface DriverService extends CRUDService<DriverRequestDTO, DriverResponseDTO> {
-    DriverResponseDTO attachCar(Long driverId, Long carId);
+public interface DriverService extends CRUDService<DriverRequest, DriverResponse> {
+    DriverResponse attachCar(Long driverId, Long carId);
     void detachCar(Long driverId);
 }

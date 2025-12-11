@@ -1,8 +1,8 @@
 package com.efcon.driver.service;
 
-import com.efcon.driver.dto.CarRequestDTO;
-import com.efcon.driver.dto.CarResponseDTO;
+import com.efcon.driver.dto.CarRequest;
+import com.efcon.driver.dto.CarResponse;
 
-public interface CarService extends CRUDService<CarRequestDTO, CarResponseDTO> {
+public interface CarService extends CRUDService<CarRequest, CarResponse> {
 
 }

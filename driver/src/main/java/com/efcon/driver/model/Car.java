@@ -1,8 +1,6 @@
 package com.efcon.driver.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,18 +21,12 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(nullable = false)
     private String color;
 
-    @NotBlank
     @Column(nullable = false)
     private String brand;
 
-    @Pattern(
-            regexp = "^\\d{4}[A-Z]{2}-[1-8]$",
-            message = "must match Belarus format XXXXYY-Z"
-    )
     @Column(nullable = false)
     private String number;
 
