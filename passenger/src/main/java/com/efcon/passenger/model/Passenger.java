@@ -1,11 +1,6 @@
 package com.efcon.passenger.model;
 
 import jakarta.persistence.*;
-
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,19 +21,12 @@ public class Passenger {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(nullable = false)
     private String name;
 
-    @Email
-    @NotBlank
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Pattern(
-            regexp = "^\\+375(25|29|33|44)\\d{7}$",
-            message = "must match Belarus format +375XXYYYYYYY"
-    )
     @Column(nullable = false, unique = true)
     private String phone;
 

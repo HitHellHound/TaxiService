@@ -1,7 +1,7 @@
 package com.efcon.passenger.service;
 
-import com.efcon.passenger.dto.PassengerRequestDTO;
-import com.efcon.passenger.dto.PassengerResponseDTO;
+import com.efcon.passenger.dto.PassengerRequest;
+import com.efcon.passenger.dto.PassengerResponse;
 
-public interface PassengerService extends CRUDService<PassengerRequestDTO, PassengerResponseDTO> {
+public interface PassengerService extends CRUDService<PassengerRequest, PassengerResponse> {
 }
