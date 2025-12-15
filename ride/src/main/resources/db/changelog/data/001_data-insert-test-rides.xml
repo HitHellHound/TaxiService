@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="insert-test-rides" author="cie">
+        <insert tableName="ride">
+            <column name="passenger_id" valueNumeric="3"/>
+            <column name="start_address" value="Минск, пр-т Победителей, 45"/>
+            <column name="destination_address" value="Минск, ул. Сурганова, 17"/>
+            <column name="status" value="CREATED"/>
+            <column name="created_at" valueDate="2025-01-12T10:15:00"/>
+            <column name="price" valueNumeric="12.50"/>
+        </insert>
+
+        <insert tableName="ride">
+            <column name="driver_id" valueNumeric="1"/>
+            <column name="passenger_id" valueNumeric="7"/>
+            <column name="start_address" value="Минск, ул. Немига, 5"/>
+            <column name="destination_address" value="Минск, ул. Куйбышева, 68"/>
+            <column name="status" value="CANCELED"/>
+            <column name="created_at" valueDate="2025-01-12T11:02:00"/>
+            <column name="price" valueNumeric="9.80"/>
+        </insert>
+
+        <insert tableName="ride">
+            <column name="driver_id" valueNumeric="1"/>
+            <column name="passenger_id" valueNumeric="1"/>
+            <column name="start_address" value="Минск, ул. Гикало, 9"/>
+            <column name="destination_address" value="Минск, ул. Матусевича, 30"/>
+            <column name="status" value="ACCEPTED"/>
+            <column name="created_at" valueDate="2025-01-12T11:20:00"/>
+            <column name="price" valueNumeric="16.40"/>
+        </insert>
+
+        <insert tableName="ride">
+            <column name="driver_id" valueNumeric="2"/>
+            <column name="passenger_id" valueNumeric="9"/>
+            <column name="start_address" value="Минск, ул. Толбухина, 2"/>
+            <column name="destination_address" value="Минск, ул. Пулихова, 18"/>
+            <column name="status" value="DRIVING_TO_PASSENGER"/>
+            <column name="created_at" valueDate="2025-01-12T12:03:00"/>
+            <column name="price" valueNumeric="11.20"/>
+        </insert>
+
+        <insert tableName="ride">
+            <column name="driver_id" valueNumeric="3"/>
+            <column name="passenger_id" valueNumeric="4"/>
+            <column name="start_address" value="Минск, ул. Ленина, 12"/>
+            <column name="destination_address" value="Минск, ул. Романовская Слобода, 14"/>
+            <column name="status" value="DRIVING_TO_DESTINATION"/>
+            <column name="created_at" valueDate="2025-01-12T13:10:00"/>
+            <column name="price" valueNumeric="7.90"/>
+        </insert>
+
+        <insert tableName="ride">
+            <column name="driver_id" valueNumeric="3"/>
+            <column name="passenger_id" valueNumeric="2"/>
+            <column name="start_address" value="Минск, ул. Берута, 11"/>
+            <column name="destination_address" value="Минск, ул. Притыцкого, 89"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="created_at" valueDate="2025-01-11T18:05:00"/>
+            <column name="price" valueNumeric="15.30"/>
+        </insert>
+
+        <insert tableName="ride">
+            <column name="driver_id" valueNumeric="7"/>
+            <column name="passenger_id" valueNumeric="8"/>
+            <column name="start_address" value="Минск, ул. Коласа, 38"/>
+            <column name="destination_address" value="Минск, ул. Тимирязева, 74"/>
+            <column name="status" value="CANCELED"/>
+            <column name="created_at" valueDate="2025-01-11T20:40:00"/>
+            <column name="price" valueNumeric="0.00"/>
+        </insert>
+
+        <insert tableName="ride">
+            <column name="passenger_id" valueNumeric="10"/>
+            <column name="start_address" value="Минск, ул. Макаёнка, 12"/>
+            <column name="destination_address" value="Минск, ул. Слободская, 21"/>
+            <column name="status" value="CREATED"/>
+            <column name="created_at" valueDate="2025-01-12T14:22:00"/>
+            <column name="price" valueNumeric="13.60"/>
+        </insert>
+
+        <insert tableName="ride">
+            <column name="driver_id" valueNumeric="7"/>
+            <column name="passenger_id" valueNumeric="6"/>
+            <column name="start_address" value="Минск, ул. Орловская, 15"/>
+            <column name="destination_address" value="Минск, ул. Мулявина, 5"/>
+            <column name="status" value="ACCEPTED"/>
+            <column name="created_at" valueDate="2025-01-12T15:12:00"/>
+            <column name="price" valueNumeric="8.10"/>
+        </insert>
+
+        <insert tableName="ride">
+            <column name="driver_id" valueNumeric="5"/>
+            <column name="passenger_id" valueNumeric="5"/>
+            <column name="start_address" value="Минск, ул. Карбышева, 7"/>
+            <column name="destination_address" value="Минск, ул. Беды, 35"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="created_at" valueDate="2025-01-10T09:25:00"/>
+            <column name="price" valueNumeric="10.20"/>
+        </insert>
+
+        <rollback>
+            <delete tableName="ride"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
