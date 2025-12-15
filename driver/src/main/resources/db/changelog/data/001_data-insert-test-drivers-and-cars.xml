@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="001_data-insert-test-cars" author="cie">
+        <insert tableName="car">
+            <column name="color" value="Red"/>
+            <column name="brand" value="Toyota"/>
+            <column name="number" value="1234AB-1"/>
+        </insert>
+        <insert tableName="car">
+            <column name="color" value="Blue"/>
+            <column name="brand" value="BMW"/>
+            <column name="number" value="2345BC-2"/>
+        </insert>
+        <insert tableName="car">
+            <column name="color" value="Black"/>
+            <column name="brand" value="Mercedes"/>
+            <column name="number" value="3456CD-3"/>
+        </insert>
+        <insert tableName="car">
+            <column name="color" value="White"/>
+            <column name="brand" value="Audi"/>
+            <column name="number" value="4567DE-4"/>
+        </insert>
+        <insert tableName="car">
+            <column name="color" value="Green"/>
+            <column name="brand" value="Volkswagen"/>
+            <column name="number" value="5678EF-5"/>
+        </insert>
+        <insert tableName="car">
+            <column name="color" value="Yellow"/>
+            <column name="brand" value="Hyundai"/>
+            <column name="number" value="6789FG-6"/>
+        </insert>
+        <insert tableName="car">
+            <column name="color" value="Gray"/>
+            <column name="brand" value="Kia"/>
+            <column name="number" value="7890GH-7"/>
+        </insert>
+        <insert tableName="car">
+            <column name="color" value="Orange"/>
+            <column name="brand" value="Nissan"/>
+            <column name="number" value="8901HI-8"/>
+        </insert>
+
+        <rollback>
+            <delete tableName="car">
+                <where>number IN ('1234AB-1','2345BC-2',
+                    '3456CD-3','4567DE-4',
+                    '5678EF-5','6789FG-6',
+                    '7890GH-7','8901HI-8')
+                </where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="001_data-insert-test-drivers" author="cie">
+        <insert tableName="driver">
+            <column name="name" value="Alex Johnson"/>
+            <column name="email" value="alex.johnson@example.com"/>
+            <column name="phone" value="+375441145111"/>
+        </insert>
+        <insert tableName="driver">
+            <column name="name" value="Maria Smith"/>
+            <column name="email" value="maria.smith@example.com"/>
+            <column name="phone" value="+375252222322"/>
+        </insert>
+        <insert tableName="driver">
+            <column name="name" value="John Doe"/>
+            <column name="email" value="john.doe@example.com"/>
+            <column name="phone" value="+375333333333"/>
+        </insert>
+        <insert tableName="driver">
+            <column name="name" value="Sophia Lee"/>
+            <column name="email" value="sophia.lee@example.com"/>
+            <column name="phone" value="+375298944444"/>
+        </insert>
+        <insert tableName="driver">
+            <column name="name" value="Michael Brown"/>
+            <column name="email" value="michael.brown@example.com"/>
+            <column name="phone" value="+375331234890"/>
+        </insert>
+        <insert tableName="driver">
+            <column name="name" value="Olga Petrova"/>
+            <column name="email" value="olga.petrova@example.com"/>
+            <column name="phone" value="+375292345978"/>
+        </insert>
+        <insert tableName="driver">
+            <column name="name" value="Ivan Ivanov"/>
+            <column name="email" value="ivan.ivanov@example.com"/>
+            <column name="phone" value="+375293856789"/>
+        </insert>
+        <insert tableName="driver">
+            <column name="name" value="Anna Kuznetsova"/>
+            <column name="email" value="anna.kuznetsova@example.com"/>
+            <column name="phone" value="+375294507890"/>
+        </insert>
+
+        <rollback>
+            <delete tableName="driver">
+                <where>email IN ('alex.johnson@example.com',
+                    'maria.smith@example.com',
+                    'john.doe@example.com',
+                    'sophia.lee@example.com',
+                    'michael.brown@example.com',
+                    'olga.petrova@example.com',
+                    'ivan.ivanov@example.com',
+                    'anna.kuznetsova@example.com')
+                </where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="001_data-link-drivers-and-cars" author="cie">
+        <update tableName="driver">
+            <column name="car_id" valueComputed="(SELECT id FROM car WHERE number = '1234AB-1')"/>
+            <where>email = 'alex.johnson@example.com'</where>
+        </update>
+        <update tableName="driver">
+            <column name="car_id" valueComputed="(SELECT id FROM car WHERE number = '2345BC-2')"/>
+            <where>email = 'maria.smith@example.com'</where>
+        </update>
+        <update tableName="driver">
+            <column name="car_id" valueComputed="(SELECT id FROM car WHERE number = '3456CD-3')"/>
+            <where>email = 'john.doe@example.com'</where>
+        </update>
+        <update tableName="driver">
+            <column name="car_id" valueComputed="(SELECT id FROM car WHERE number = '6789FG-6')"/>
+            <where>email = 'olga.petrova@example.com'</where>
+        </update>
+        <update tableName="driver">
+            <column name="car_id" valueComputed="(SELECT id FROM car WHERE number = '7890GH-7')"/>
+            <where>email = 'michael.brown@example.com'</where>
+        </update>
+        <update tableName="driver">
+            <column name="car_id" valueComputed="(SELECT id FROM car WHERE number = '8901HI-8')"/>
+            <where>email = 'ivan.ivanov@example.com'</where>
+        </update>
+
+        <rollback>
+            <update tableName="driver">
+                <column name="car_id" value="NULL"/>
+                <where>email IN ('alex.johnson@example.com',
+                    'maria.smith@example.com',
+                    'john.doe@example.com',
+                    'michael.brown@example.com',
+                    'olga.petrova@example.com',
+                    'ivan.ivanov@example.com')
+                </where>
+            </update>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

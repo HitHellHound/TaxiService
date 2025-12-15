@@ -1,0 +1,15 @@
+spring:
+  config:
+    import: file:config/secrets.properties
+
+  application:
+    name: driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.xml

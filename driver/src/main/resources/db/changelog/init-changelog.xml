@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="init-cars-schema" author="cie">
+        <createTable tableName="car">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_car"/>
+            </column>
+            <column name="color" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="brand" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="number" type="VARCHAR(8)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted_at" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="add-car-number-partial-unique-index" author="cie">
+        <sql>
+            CREATE UNIQUE INDEX idx_prt_unq_car_number
+            ON car(number)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <dropIndex tableName="car" indexName="idx_prt_unq_car_number"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-car-number-format-check" author="cie">
+        <sql>
+            ALTER TABLE car
+            ADD CONSTRAINT chk_car_number_format
+            CHECK (number ~ '^\d{4}[A-Z]{2}-[1-8]$');
+        </sql>
+        <rollback>
+            ALTER TABLE car
+            DROP CONSTRAINT chk_car_number_format;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="init-drivers-schema" author="cie">
+        <createTable tableName="driver">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_driver"/>
+            </column>
+            <column name="car_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="CHAR(13)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted_at" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="add-driver-car-id-partial-unique-index" author="cie">
+        <sql>
+            CREATE UNIQUE INDEX idx_prt_unq_driver_car_id
+            ON driver(car_id)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <dropIndex tableName="driver" indexName="idx_prt_unq_driver_car_id"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-driver-email-partial-unique-index" author="cie">
+        <sql>
+            CREATE UNIQUE INDEX idx_prt_unq_driver_email
+            ON driver(email)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <dropIndex tableName="driver" indexName="idx_prt_unq_driver_email"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-driver-phone-partial-unique-index" author="cie">
+        <sql>
+            CREATE UNIQUE INDEX idx_prt_unq_driver_phone
+            ON driver(phone)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <dropIndex tableName="driver" indexName="idx_prt_unq_driver_phone"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-driver-email-format-check" author="cie">
+        <sql>
+            ALTER TABLE driver
+            ADD CONSTRAINT chk_driver_email_format
+            CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+        </sql>
+        <rollback>
+            ALTER TABLE driver
+            DROP CONSTRAINT chk_driver_email_format;
+        </rollback>
+    </changeSet>
+    <changeSet id="add-driver-phone-format-check" author="cie">
+        <sql>
+            ALTER TABLE driver
+            ADD CONSTRAINT chk_driver_phone_format
+            CHECK (phone ~ '^\+375(25|29|33|44)\d{7}$');
+        </sql>
+        <rollback>
+            ALTER TABLE driver
+            DROP CONSTRAINT chk_driver_phone_format;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="add-driver-car-relation" author="cie">
+        <addForeignKeyConstraint
+                baseTableName="driver"
+                baseColumnNames="car_id"
+                constraintName="fk_driver_car"
+                referencedTableName="car"
+                referencedColumnNames="id"
+                onDelete="SET NULL"/>
+    </changeSet>
+
+    <changeSet id="init-schemas-created-tag" author="cie">
+        <tagDatabase tag="init_schemas_created"/>
+    </changeSet>
+</databaseChangeLog>
