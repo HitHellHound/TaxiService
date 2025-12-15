@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/mongodb
+        http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+    <changeSet id="init-rating-collection-schema" author="cie">
+        <mongodb:createCollection collectionName="rating">
+            <mongodb:options>
+                {
+                    validator: {
+                        $jsonSchema: {
+                            bsonType: 'object',
+                            properties: {
+                                _id: {
+                                    bsonType: 'long',
+                                    description: 'Id must be long type and required'
+                                },
+                                passengerScore: {
+                                    bsonType: 'int',
+                                    minimum: 1,
+                                    maximum: 5,
+                                    description: 'passengerScore must be an integer in [ 1, 5 ]'
+                                },
+                                passengerComment: {
+                                    bsonType: 'string',
+                                    description: 'passengerComment must be a string'
+                                },
+                                driverScore: {
+                                    bsonType: 'int',
+                                    minimum: 1,
+                                    maximum: 5,
+                                    description: 'driverScore must be an integer in [ 1, 5 ]'
+                                },
+                                driverComment: {
+                                    bsonType: 'string',
+                                    description: 'driverComment must be a string'
+                                }
+                            },
+                            allOf: [
+                                {
+                                    oneOf: [
+                                        {
+                                            not: {
+                                                required: [
+                                                    'passengerComment'
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            required: [
+                                                'passengerScore',
+                                                'passengerComment'
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    oneOf: [
+                                        {
+                                            not: {
+                                                required: [
+                                                    'driverComment'
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            required: [
+                                                'driverScore',
+                                                'driverComment'
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    validationLevel: "strict",
+                    validationAction: "error"
+                }
+            </mongodb:options>
+        </mongodb:createCollection>
+    </changeSet>
+</databaseChangeLog>

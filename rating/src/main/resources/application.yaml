@@ -1,0 +1,10 @@
+spring:
+  config:
+    import: file:config/secrets.properties
+
+  application:
+    name: rating
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.xml
