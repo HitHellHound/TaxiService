@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="001_data-insert-test-users" author="cie">
+        <insert tableName="passenger">
+            <column name="name" value="Alice Johnson"/>
+            <column name="email" value="alice@example.com"/>
+            <column name="phone" value="+375251234567"/>
+        </insert>
+        <insert tableName="passenger">
+            <column name="name" value="Bob Smith"/>
+            <column name="email" value="bob@example.com"/>
+            <column name="phone" value="+375291234568"/>
+        </insert>
+        <insert tableName="passenger">
+            <column name="name" value="Charlie Brown"/>
+            <column name="email" value="charlie@example.com"/>
+            <column name="phone" value="+375331234569"/>
+        </insert>
+        <insert tableName="passenger">
+            <column name="name" value="Diana Prince"/>
+            <column name="email" value="diana@example.com"/>
+            <column name="phone" value="+375441234560"/>
+        </insert>
+        <insert tableName="passenger">
+            <column name="name" value="Ethan Williams"/>
+            <column name="email" value="ethan@example.com"/>
+            <column name="phone" value="+375251112233"/>
+        </insert>
+        <insert tableName="passenger">
+            <column name="name" value="Fiona Davis"/>
+            <column name="email" value="fiona@example.com"/>
+            <column name="phone" value="+375291234111"/>
+        </insert>
+        <insert tableName="passenger">
+            <column name="name" value="George Miller"/>
+            <column name="email" value="george@example.com"/>
+            <column name="phone" value="+375331234222"/>
+        </insert>
+        <insert tableName="passenger">
+            <column name="name" value="Hannah Wilson"/>
+            <column name="email" value="hannah@example.com"/>
+            <column name="phone" value="+375441234333"/>
+        </insert>
+        <insert tableName="passenger">
+            <column name="name" value="Ian Thompson"/>
+            <column name="email" value="ian@example.com"/>
+            <column name="phone" value="+375251234444"/>
+        </insert>
+        <insert tableName="passenger">
+            <column name="name" value="Julia Green"/>
+            <column name="email" value="julia@example.com"/>
+            <column name="phone" value="+375291234555"/>
+        </insert>
+
+        <rollback>
+            <delete tableName="passenger">
+                <where>email IN (
+                    'alice@example.com',
+                    'bob@example.com',
+                    'charlie@example.com',
+                    'diana@example.com',
+                    'ethan@example.com',
+                    'fiona@example.com',
+                    'george@example.com',
+                    'hannah@example.com',
+                    'ian@example.com',
+                    'julia@example.com'
+                    )</where>
+            </delete>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
