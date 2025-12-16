@@ -1,0 +1,6 @@
+FROM eclipse-temurin:17-jdk-alpine
+COPY target/discovery-?.?.?-SNAPSHOT.jar app.jar
+EXPOSE 8761
+RUN mkdir config
+VOLUME /config
+ENTRYPOINT ["java","-jar","/app.jar"]
