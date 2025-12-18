@@ -19,20 +19,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(exception = IllegalRideStatusTransition.class)
-    public String illegalStatusTransition(IllegalRideStatusTransition exception) {
+    @ExceptionHandler(exception = {
+            IllegalRideStatusTransition.class,
+            ExternalBadRequestException.class})
+    public String illegalStatusTransition(Exception exception) {
         return exception.getMessage();
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(exception = EntityNotFoundException.class)
     public String entityNotFound(EntityNotFoundException exception) {
-        return exception.getMessage();
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(exception = ExternalBadRequestException.class)
-    public String externalBadRequest(ExternalBadRequestException exception) {
         return exception.getMessage();
     }
 
