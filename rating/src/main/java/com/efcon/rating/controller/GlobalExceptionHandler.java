@@ -1,6 +1,7 @@
 package com.efcon.rating.controller;
 
 import com.efcon.rating.exception.DocumentNotFoundException;
+import com.efcon.rating.exception.IllegalRatingCreationException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(exception = DocumentNotFoundException.class)
     public String entityNotFound(DocumentNotFoundException exception) {
+        return exception.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(exception = IllegalRatingCreationException.class)
+    public String entityNotFound(IllegalRatingCreationException exception) {
         return exception.getMessage();
     }
 
