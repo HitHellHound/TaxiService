@@ -13,3 +13,13 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.xml
+
+grpc:
+  server:
+    port: &grpc_port 9090
+
+eureka:
+  instance:
+    metadata-map:
+      grpc.port: *grpc_port
+      grpc.enabled: true
