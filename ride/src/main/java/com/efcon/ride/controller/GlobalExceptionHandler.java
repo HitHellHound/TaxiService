@@ -1,6 +1,7 @@
 package com.efcon.ride.controller;
 
 import com.efcon.ride.exception.EntityNotFoundException;
+import com.efcon.ride.exception.ExternalBadRequestException;
 import com.efcon.ride.exception.IllegalRideStatusTransition;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -26,6 +27,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(exception = EntityNotFoundException.class)
     public String entityNotFound(EntityNotFoundException exception) {
+        return exception.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(exception = ExternalBadRequestException.class)
+    public String externalBadRequest(ExternalBadRequestException exception) {
         return exception.getMessage();
     }
 

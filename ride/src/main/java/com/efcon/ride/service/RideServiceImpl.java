@@ -1,5 +1,6 @@
 package com.efcon.ride.service;
 
+import com.efcon.ride.dto.PassengerResponse;
 import com.efcon.ride.dto.RideRequest;
 import com.efcon.ride.dto.RideResponse;
 import com.efcon.ride.exception.EntityNotFoundException;
@@ -16,6 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RideServiceImpl implements RideService{
+    private final PassengerService passengerService;
     private final RideRepository repository;
     private final RideMapper mapper;
 
@@ -33,6 +35,7 @@ public class RideServiceImpl implements RideService{
 
     @Override
     public RideResponse create(RideRequest request) {
+        PassengerResponse passenger = passengerService.get(request.passengerId());
         Ride newRide = mapper.fromRequest(request);
         return mapper.toResponse(repository.save(newRide));
     }
