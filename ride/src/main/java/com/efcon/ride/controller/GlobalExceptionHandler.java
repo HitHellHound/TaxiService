@@ -2,7 +2,9 @@ package com.efcon.ride.controller;
 
 import com.efcon.ride.exception.EntityNotFoundException;
 import com.efcon.ride.exception.ExternalBadRequestException;
+import com.efcon.ride.exception.ExternalServiceException;
 import com.efcon.ride.exception.IllegalRideStatusTransition;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.postgresql.util.PSQLException;
@@ -70,5 +72,16 @@ public class GlobalExceptionHandler {
             return ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.status(400).body(message.toString());
+    }
+
+    @ExceptionHandler(exception = {
+            CallNotPermittedException.class,
+            ExternalServiceException.class
+    })
+    public ResponseEntity<String> externalServiceDenied(Exception exception) {
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .header("Retry-After", "10")
+                .body("One of the internal services is currently unavailable, please try again later");
     }
 }

@@ -3,12 +3,14 @@ package com.efcon.ride.external.client;
 import com.efcon.ride.dto.PassengerRequest;
 import com.efcon.ride.dto.PassengerResponse;
 import com.efcon.ride.external.config.PassengerClientConfiguration;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @FeignClient(name = "passenger", path = "/api/v1/passengers", configuration = PassengerClientConfiguration.class)
+@CircuitBreaker(name = "driver-service")
 public interface PassengerClient {
     @GetMapping
     List<PassengerResponse> getAll();
