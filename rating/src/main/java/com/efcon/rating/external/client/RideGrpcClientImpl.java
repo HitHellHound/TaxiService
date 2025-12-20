@@ -6,6 +6,7 @@ import com.efcon.rating.exception.ExternalServiceException;
 import com.efcon.ride.grpc.stubs.GetRideByIdRequest;
 import com.efcon.ride.grpc.stubs.Ride;
 import com.efcon.ride.grpc.stubs.RideGRPCServiceGrpc;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.grpc.StatusRuntimeException;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@CircuitBreaker(name = "ride-service")
 public class RideGrpcClientImpl implements RideGrpcClient {
     @GrpcClient("ride-service")
     private RideGRPCServiceGrpc.RideGRPCServiceBlockingStub client;

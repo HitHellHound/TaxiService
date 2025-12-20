@@ -1,6 +1,7 @@
 package com.efcon.rating.controller;
 
 import com.efcon.rating.exception.*;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -61,9 +62,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(exception = {
+            CallNotPermittedException.class,
             ExternalServiceException.class
     })
-    public ResponseEntity<String> externalServiceDenied() {
+    public ResponseEntity<String> externalServiceDenied(Exception exception) {
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)
                 .header("Retry-After", "10")
