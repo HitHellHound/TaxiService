@@ -1,10 +1,10 @@
 package com.efcon.rating.controller;
 
-import com.efcon.rating.exception.DocumentNotFoundException;
-import com.efcon.rating.exception.IllegalRatingCreationException;
+import com.efcon.rating.exception.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,14 +15,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(exception = DocumentNotFoundException.class)
-    public String entityNotFound(DocumentNotFoundException exception) {
+    @ExceptionHandler(exception = {
+            DocumentNotFoundException.class,
+            EntityNotFoundException.class
+    })
+    public String entityNotFound(Exception exception) {
         return exception.getMessage();
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(exception = IllegalRatingCreationException.class)
-    public String entityNotFound(IllegalRatingCreationException exception) {
+    @ExceptionHandler(exception = {
+            IllegalRatingCreationException.class,
+            ExternalBadRequestException.class
+    })
+    public String badRequest(Exception exception) {
         return exception.getMessage();
     }
 
@@ -52,5 +58,15 @@ public class GlobalExceptionHandler {
             }
         }
         return message.toString();
+    }
+
+    @ExceptionHandler(exception = {
+            ExternalServiceException.class
+    })
+    public ResponseEntity<String> externalServiceDenied() {
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .header("Retry-After", "10")
+                .body("One of the internal services is currently unavailable, please try again later");
     }
 }
