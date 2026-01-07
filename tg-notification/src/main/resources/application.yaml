@@ -1,3 +1,10 @@
 spring:
+  config:
+    import: file:config/secrets.yaml
+
   application:
     name: tg-notification
+
+telegram:
+  bot:
+    username: TaxiDriverNotify
