@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(exception = EntityNotFoundException.class)
-    public ResponseEntity<String> entityNotFound(EntityNotFoundException exception) {
-        return ResponseEntity.status(404).body(exception.getMessage());
+    public String entityNotFound(EntityNotFoundException exception) {
+        return exception.getMessage();
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(exception = ConstraintViolationException.class)
-    public ResponseEntity<String> entityValidationFailed(ConstraintViolationException exception) {
+    public String entityValidationFailed(ConstraintViolationException exception) {
         StringBuilder message = new StringBuilder("Invalid data passed: \n");
         for (ConstraintViolation<?> violation: exception.getConstraintViolations()) {
             message.append(violation.getPropertyPath())
@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
                     .append(violation.getMessage())
                     .append('\n');
         }
-        return ResponseEntity.status(400).body(message.toString());
+        return message.toString();
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
