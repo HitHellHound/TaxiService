@@ -1,5 +1,7 @@
 package com.efcon.ride.service;
 
+import com.efcon.ride.dto.DriverResponse;
+import com.efcon.ride.dto.PassengerResponse;
 import com.efcon.ride.dto.RideRequest;
 import com.efcon.ride.dto.RideResponse;
 import com.efcon.ride.exception.EntityNotFoundException;
@@ -15,7 +17,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RideServiceImpl implements RideService{
+public class RideServiceImpl implements RideService {
+    private final PassengerService passengerService;
+    private final DriverService driverService;
     private final RideRepository repository;
     private final RideMapper mapper;
 
@@ -33,6 +37,7 @@ public class RideServiceImpl implements RideService{
 
     @Override
     public RideResponse create(RideRequest request) {
+        PassengerResponse passenger = passengerService.get(request.passengerId());
         Ride newRide = mapper.fromRequest(request);
         return mapper.toResponse(repository.save(newRide));
     }
@@ -52,6 +57,10 @@ public class RideServiceImpl implements RideService{
 
     @Override
     public RideResponse accept(Long id, Long driverId) {
+        DriverResponse driver = driverService.get(driverId);
+        if (driver.car() == null) {
+            throw new IllegalRideStatusTransition("Driver with id " + driverId + " doesn't have a car");
+        }
         Ride ride = updateRideStatus(id, RideStatus.ACCEPTED);
         ride.setDriverId(driverId);
         return mapper.toResponse(repository.save(ride));
