@@ -1,0 +1,11 @@
+spring:
+  config:
+    import: file:config/secrets.yaml
+
+  application:
+    name: discovery
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
