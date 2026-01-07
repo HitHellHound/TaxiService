@@ -35,3 +35,4 @@ build/
 
 config
 TaxiDriverNotify
+src/main/resources/liquibase.properties

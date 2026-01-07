@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="create-driver-to-tg-table" author="cie">
+        <createTable tableName="driver_tg">
+            <column name="driver_id" type="BIGINT">
+                <constraints unique="true" nullable="false" uniqueConstraintName="unq_driver_tg_driver_id"/>
+            </column>
+            <column name="tg_id" type="BIGINT">
+                <constraints unique="true" nullable="false" uniqueConstraintName="unq_driver_tg_tg_id"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="create-primary-key-for-driver-to-tg-table" author="cie">
+        <addPrimaryKey
+                tableName="driver_tg"
+                columnNames="driver_id, tg_id"
+                constraintName="pk_driver_tg"/>
+    </changeSet>
+    <changeSet id="init-schema-created-tag" author="cie">
+        <tagDatabase tag="init_schema_created"/>
+    </changeSet>
+</databaseChangeLog>
