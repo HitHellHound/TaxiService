@@ -9,12 +9,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.util.List;
 import java.util.function.Predicate;
 
-public final class TgNotificationKeyboardFactory {
+public final class TgBotKeyboardFactory {
     public static final String NOTIFICATION_ACCEPT_CALLBACK_PREFIX = "accept_ride_";
     public static final String NOTIFICATION_REJECT_CALLBACK_PREFIX = "reject_ride_";
 
 
-    private TgNotificationKeyboardFactory() {
+    private TgBotKeyboardFactory() {
 
     }
 

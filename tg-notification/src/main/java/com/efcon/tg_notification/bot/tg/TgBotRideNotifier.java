@@ -1,8 +1,7 @@
 package com.efcon.tg_notification.bot.tg;
 
-import com.efcon.tg_notification.bot.NotificationBot;
+import com.efcon.tg_notification.bot.RideNotifier;
 import com.efcon.tg_notification.configuration.TgBotProperties;
-import com.efcon.tg_notification.dao.DriverChatDao;
 import com.efcon.tg_notification.dto.RideInfo;
 import com.efcon.tg_notification.service.DriverChatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +22,13 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.function.BiConsumer;
 
 @Component
-public class TgNotificationBot extends AbilityBot implements SpringLongPollingBot, NotificationBot {
+public class TgBotRideNotifier extends AbilityBot implements SpringLongPollingBot, RideNotifier {
     private final String token;
     private final Long creatorId;
     private final DriverChatService driverChatService;
 
     @Autowired
-    public TgNotificationBot(TgBotProperties properties, DriverChatService driverChatService) {
+    public TgBotRideNotifier(TgBotProperties properties, DriverChatService driverChatService) {
         super(new OkHttpTelegramClient(properties.token()), properties.username());
         this.token = properties.token();
         this.creatorId = properties.creatorId();
@@ -41,7 +40,7 @@ public class TgNotificationBot extends AbilityBot implements SpringLongPollingBo
         silent.execute(SendMessage.builder()
                 .chatId(driverChatService.getChatId(driverId))
                 .text(createRideNotificationMessage(rideInfo))
-                .replyMarkup(TgNotificationKeyboardFactory.notificationButtons(rideInfo.rideId()))
+                .replyMarkup(TgBotKeyboardFactory.notificationButtons(rideInfo.rideId()))
                 .build());
     }
 
@@ -54,7 +53,7 @@ public class TgNotificationBot extends AbilityBot implements SpringLongPollingBo
                     .text(upd.getCallbackQuery().getData())
                     .build());
         };
-        return Reply.of(action, Flag.CALLBACK_QUERY, TgNotificationKeyboardFactory.notificationButtonsCallbackPredicate());
+        return Reply.of(action, Flag.CALLBACK_QUERY, TgBotKeyboardFactory.notificationButtonsCallbackPredicate());
     }
 
     public Ability testRide() {
