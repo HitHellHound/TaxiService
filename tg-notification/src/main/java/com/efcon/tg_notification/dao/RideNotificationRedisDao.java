@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.time.Duration;
 import java.util.Optional;
 
-import static com.efcon.tg_notification.service.RedisKeyTemplates.*;
+import static com.efcon.tg_notification.dao.RedisKeyTemplates.*;
 
 @Repository
 @RequiredArgsConstructor

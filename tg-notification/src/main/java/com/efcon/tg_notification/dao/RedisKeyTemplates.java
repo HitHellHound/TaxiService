@@ -1,4 +1,4 @@
-package com.efcon.tg_notification.service;
+package com.efcon.tg_notification.dao;
 
 public final class RedisKeyTemplates {
     public static final String DRIVER_NOTIFICATION_QUEUE_TEMPLATE = "driver:%d:notification-queue";

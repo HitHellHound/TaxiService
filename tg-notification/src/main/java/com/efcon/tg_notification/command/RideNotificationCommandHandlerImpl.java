@@ -2,6 +2,7 @@ package com.efcon.tg_notification.command;
 
 import com.efcon.tg_notification.dao.RideNotificationDao;
 import com.efcon.tg_notification.dto.RideInfo;
+import com.efcon.tg_notification.dto.RideResponse;
 import com.efcon.tg_notification.event.AcceptanceDeclinedEvent;
 import com.efcon.tg_notification.event.ActiveNotificationPlacedEvent;
 import com.efcon.tg_notification.event.RideAcceptedEvent;
@@ -25,9 +26,9 @@ public class RideNotificationCommandHandlerImpl implements RideNotificationComma
         Optional<RideInfo> rideInfo = notificationDao.getRideInfo(command.rideId());
 
         if (rideInfo.isPresent() && !notificationDao.isRideAccepted(command.rideId())) {
-            boolean isAccepted = rideService.accept(command.rideId(), command.driverId());
+            Optional<RideResponse> rideResponse = rideService.accept(command.rideId(), command.driverId());
 
-            if (isAccepted) {
+            if (rideResponse.isPresent()) {
                 notificationDao.dropRideNotificationQueue(command.driverId());
                 notificationDao.removeActiveRideNotification(command.driverId());
                 notificationDao.setRideAccepted(command.rideId());
