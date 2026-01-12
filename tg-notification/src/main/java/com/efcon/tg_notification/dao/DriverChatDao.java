@@ -1,6 +1,9 @@
 package com.efcon.tg_notification.dao;
 
+import java.util.Optional;
+
 public interface DriverChatDao {
-    Long getChatId(Long driverId);
-    Long getDriverId(Long chatId);
+    Optional<Long> getChatId(Long driverId);
+    Optional<Long> getDriverId(Long chatId);
+    void registerDriverChat(Long driverId, Long chatId);
 }

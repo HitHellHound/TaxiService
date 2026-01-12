@@ -1,4 +1,6 @@
 package com.efcon.tg_notification.dto;
 
-public record RideInfo(Long rideId) {
+import java.io.Serializable;
+
+public record RideInfo(Long rideId) implements Serializable {
 }

@@ -17,3 +17,8 @@ spring:
 telegram:
   bot:
     username: TaxiDriverNotify
+
+mq:
+  ride-notifications:
+    send: ride-notifications.send
+

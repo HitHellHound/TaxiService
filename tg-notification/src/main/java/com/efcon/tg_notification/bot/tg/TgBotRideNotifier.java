@@ -1,12 +1,16 @@
 package com.efcon.tg_notification.bot.tg;
 
 import com.efcon.tg_notification.bot.RideNotifier;
+import com.efcon.tg_notification.command.AcceptRideNotificationCommand;
+import com.efcon.tg_notification.command.RejectRideNotificationCommand;
+import com.efcon.tg_notification.command.RideNotificationCommandHandler;
 import com.efcon.tg_notification.configuration.TgBotProperties;
 import com.efcon.tg_notification.dto.RideInfo;
 import com.efcon.tg_notification.service.DriverChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.abilitybots.api.bot.AbilityBot;
 import org.telegram.telegrambots.abilitybots.api.bot.BaseAbilityBot;
@@ -21,18 +25,24 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.function.BiConsumer;
 
+import static com.efcon.tg_notification.bot.tg.TgBotKeyboardFactory.NOTIFICATION_ACCEPT_CALLBACK_PREFIX;
+import static com.efcon.tg_notification.bot.tg.TgBotKeyboardFactory.NOTIFICATION_REJECT_CALLBACK_PREFIX;
+
 @Component
 public class TgBotRideNotifier extends AbilityBot implements SpringLongPollingBot, RideNotifier {
     private final String token;
     private final Long creatorId;
     private final DriverChatService driverChatService;
+    private final RideNotificationCommandHandler commandHandler;
 
     @Autowired
-    public TgBotRideNotifier(TgBotProperties properties, DriverChatService driverChatService) {
+    public TgBotRideNotifier(TgBotProperties properties, DriverChatService driverChatService,
+                             RideNotificationCommandHandler commandHandler) {
         super(new OkHttpTelegramClient(properties.token()), properties.username());
         this.token = properties.token();
         this.creatorId = properties.creatorId();
         this.driverChatService = driverChatService;
+        this.commandHandler = commandHandler;
     }
 
     @Override
@@ -44,27 +54,57 @@ public class TgBotRideNotifier extends AbilityBot implements SpringLongPollingBo
                 .build());
     }
 
-    public Reply processDriverAnswer() {
+    @Override
+    public void sendRideAcceptedNotification(Long driverId, RideInfo rideInfo) {
+        silent.execute(SendMessage.builder()
+                .chatId(driverChatService.getChatId(driverId))
+                .text(createRideAcceptedMessage(rideInfo))
+                .build());
+    }
+
+    @Override
+    public void sendRideRejectedNotification(Long driverId, Long rideId) {
+
+    }
+
+    @Override
+    public void sendNotificationAcceptanceDecline(Long driverId, Long rideId, String reason) {
+        silent.execute(SendMessage.builder()
+                .chatId(driverChatService.getChatId(driverId))
+                .text("Acceptance for ride #" + rideId + " was declined:\n" + reason)
+                .build());
+    }
+
+    public Reply processDriverAccept() {
         BiConsumer<BaseAbilityBot,Update> action = (bot, upd) -> {
+            Long rideId = Long.valueOf(upd.getCallbackQuery().getData().replace(NOTIFICATION_ACCEPT_CALLBACK_PREFIX, ""));
             bot.getSilent().execute(EditMessageText
                     .builder()
                     .chatId(AbilityUtils.getChatId(upd))
                     .messageId(upd.getCallbackQuery().getMessage().getMessageId())
-                    .text(upd.getCallbackQuery().getData())
+                    .text("Process ride #" + rideId + " accept...")
                     .build());
+
+            Long driverId = driverChatService.getDriverId(AbilityUtils.getChatId(upd));
+            commandHandler.handle(new AcceptRideNotificationCommand(driverId, rideId));
         };
-        return Reply.of(action, Flag.CALLBACK_QUERY, TgBotKeyboardFactory.notificationButtonsCallbackPredicate());
+        return Reply.of(action, Flag.CALLBACK_QUERY, TgBotKeyboardFactory.notificationAcceptButtonCallbackPredicate());
     }
 
-    public Ability testRide() {
-        return Ability
-                .builder()
-                .name("test_ride")
-                .input(2)
-                .privacy(Privacy.PUBLIC)
-                .locality(Locality.ALL)
-                .action(ctx -> sendRideNotification(Long.valueOf(ctx.firstArg()), new RideInfo(Long.valueOf(ctx.secondArg()))))
-                .build();
+    public Reply processDriverReject() {
+        BiConsumer<BaseAbilityBot,Update> action = (bot, upd) -> {
+            Long rideId = Long.valueOf(upd.getCallbackQuery().getData().replace(NOTIFICATION_REJECT_CALLBACK_PREFIX, ""));
+            bot.getSilent().execute(EditMessageText
+                    .builder()
+                    .chatId(AbilityUtils.getChatId(upd))
+                    .messageId(upd.getCallbackQuery().getMessage().getMessageId())
+                    .text("Ride #" + rideId + " rejected")
+                    .build());
+
+            Long driverId = driverChatService.getDriverId(AbilityUtils.getChatId(upd));
+            commandHandler.handle(new RejectRideNotificationCommand(driverId, rideId));
+        };
+        return Reply.of(action, Flag.CALLBACK_QUERY, TgBotKeyboardFactory.notificationRejectButtonCallbackPredicate());
     }
 
     public Ability getChatId() {
@@ -78,9 +118,33 @@ public class TgBotRideNotifier extends AbilityBot implements SpringLongPollingBo
                 .build();
     }
 
+    public Ability registration() {
+        return Ability
+                .builder()
+                .name("register_as")
+                .input(1)
+                .privacy(Privacy.PUBLIC)
+                .locality(Locality.ALL)
+                .action(ctx -> {
+                    try {
+                        driverChatService.registerDriverChat(Long.valueOf(ctx.firstArg()), ctx.chatId());
+                        silent.send("Successfully has bind this chat to driver #" + ctx.firstArg(), ctx.chatId());
+                    } catch (DataAccessException exception) {
+                        silent.send("Can't bind this chat to driver #" + ctx.firstArg(), ctx.chatId());
+                    }
+                })
+                .build();
+    }
+
     private String createRideNotificationMessage(RideInfo rideInfo) {
         return new StringBuilder("New Ride #" + rideInfo.rideId()).append('\n')
                 .append("Do you want to accept it?")
+                .toString();
+    }
+
+    private String createRideAcceptedMessage(RideInfo rideInfo) {
+        return new StringBuilder("Ride #" + rideInfo.rideId()).append(" successfully accepted").append('\n')
+                .append("INFO")
                 .toString();
     }
 

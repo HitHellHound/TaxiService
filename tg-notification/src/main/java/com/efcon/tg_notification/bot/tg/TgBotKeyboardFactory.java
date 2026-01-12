@@ -34,8 +34,11 @@ public final class TgBotKeyboardFactory {
         return new InlineKeyboardMarkup(List.of(new InlineKeyboardRow(acceptButton, rejectButton)));
     }
 
-    public static Predicate<Update> notificationButtonsCallbackPredicate() {
-        return upd -> upd.getCallbackQuery().getData().startsWith(NOTIFICATION_ACCEPT_CALLBACK_PREFIX) ||
-                upd.getCallbackQuery().getData().startsWith(NOTIFICATION_REJECT_CALLBACK_PREFIX);
+    public static Predicate<Update> notificationAcceptButtonCallbackPredicate() {
+        return upd -> upd.getCallbackQuery().getData().startsWith(NOTIFICATION_ACCEPT_CALLBACK_PREFIX);
+    }
+
+    public static Predicate<Update> notificationRejectButtonCallbackPredicate() {
+        return upd -> upd.getCallbackQuery().getData().startsWith(NOTIFICATION_REJECT_CALLBACK_PREFIX);
     }
 }
