@@ -34,6 +34,7 @@ public class TgBotRideNotifier extends AbilityBot implements SpringLongPollingBo
     private final Long creatorId;
     private final DriverChatService driverChatService;
     private final RideNotificationCommandHandler commandHandler;
+    private boolean isAbilitiesRegistered = false;
 
     @Autowired
     public TgBotRideNotifier(TgBotProperties properties, DriverChatService driverChatService,
@@ -165,6 +166,9 @@ public class TgBotRideNotifier extends AbilityBot implements SpringLongPollingBo
 
     @EventListener({ContextRefreshedEvent.class})
     private void initAbilities() {
-        this.onRegister();
+        if (!isAbilitiesRegistered) {
+            this.onRegister();
+            isAbilitiesRegistered = true;
+        }
     }
 }
