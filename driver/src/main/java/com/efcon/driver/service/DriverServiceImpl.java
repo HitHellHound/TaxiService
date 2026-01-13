@@ -2,13 +2,16 @@ package com.efcon.driver.service;
 
 import com.efcon.driver.dto.DriverRequest;
 import com.efcon.driver.dto.DriverResponse;
+import com.efcon.driver.event.*;
 import com.efcon.driver.exception.EntityNotFoundException;
+import com.efcon.driver.mapper.DriverInfoMapper;
 import com.efcon.driver.mapper.DriverMapper;
 import com.efcon.driver.model.Car;
 import com.efcon.driver.model.Driver;
 import com.efcon.driver.repository.CarRepository;
 import com.efcon.driver.repository.DriverRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +22,8 @@ public class DriverServiceImpl implements DriverService {
     private final DriverRepository repository;
     private final CarRepository carRepository;
     private final DriverMapper mapper;
+    private final DriverInfoMapper driverInfoMapper;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public List<DriverResponse> getAll() {
@@ -34,8 +39,11 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public DriverResponse create(DriverRequest driverRequest) {
-        Driver newEntity = mapper.fromRequest(driverRequest);
-        return mapper.toResponse(repository.save(newEntity));
+        Driver newDriver = mapper.fromRequest(driverRequest);
+        newDriver = repository.save(newDriver);
+
+        applicationEventPublisher.publishEvent(new DriverCreatedEvent(newDriver.getId(), driverInfoMapper.toDriverInfo(newDriver)));
+        return mapper.toResponse(newDriver);
     }
 
     @Override
@@ -43,12 +51,17 @@ public class DriverServiceImpl implements DriverService {
         Driver driver = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Driver with id " + id + " not found"));
         mapper.updateEntityFromRequest(driverRequest, driver);
-        return mapper.toResponse(repository.save(driver));
+        driver = repository.save(driver);
+
+        applicationEventPublisher.publishEvent(new DriverChangedEvent(driver.getId(), driverInfoMapper.toDriverInfo(driver)));
+        return mapper.toResponse(driver);
     }
 
     @Override
     public void delete(Long id) {
         repository.deleteById(id);
+
+        applicationEventPublisher.publishEvent(new DriverDeletedEvent(id));
     }
 
     @Override
@@ -58,7 +71,10 @@ public class DriverServiceImpl implements DriverService {
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new EntityNotFoundException("Car  with id " + carId + " not found"));
         driver.setCar(car);
-        return mapper.toResponse(repository.save(driver));
+        driver = repository.save(driver);
+
+        applicationEventPublisher.publishEvent(new DriverShiftStartedEvent(driverId, carId));
+        return mapper.toResponse(driver);
     }
 
     @Override
@@ -67,5 +83,7 @@ public class DriverServiceImpl implements DriverService {
                 .orElseThrow(() -> new EntityNotFoundException("Driver  with id " + driverId + " not found"));
         driver.setCar(null);
         repository.save(driver);
+
+        applicationEventPublisher.publishEvent(new DriverShiftEndedEvent(driverId));
     }
 }
