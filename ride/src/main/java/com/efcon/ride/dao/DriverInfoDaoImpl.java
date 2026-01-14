@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.efcon.ride.dao.DriverInfoDaoQueries.*;
@@ -21,6 +22,15 @@ public class DriverInfoDaoImpl implements DriverInfoDao {
                 .param("id", id)
                 .query(DriverInfo.class)
                 .optional();
+    }
+
+    @Override
+    public List<Long> getSomeFreeDriverOnCarIds(int maxNumber) {
+        return jdbcClient
+                .sql(GET_SOME_FREE_DRIVER_ON_CAR_IDS)
+                .param("maxNumber", maxNumber)
+                .query(Long.class)
+                .list();
     }
 
     @Override

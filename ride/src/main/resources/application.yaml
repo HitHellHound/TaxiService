@@ -36,6 +36,12 @@ outbound:
       topic:
         driver-events: driver-events
 
+mq:
+  ride-notifications:
+    send:
+      queue: ride-notifications.send.queue
+      exchange: ride-notifications.send.exchange
+
 grpc:
   server:
     port: &grpc_port 9090

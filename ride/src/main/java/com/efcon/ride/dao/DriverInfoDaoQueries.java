@@ -4,6 +4,8 @@ public final class DriverInfoDaoQueries {
     public static final String SOFT_DELETE_RESTRICTION = " deleted_at IS NULL";
 
     public static final String GET_DRIVER_BY_ID = "SELECT * FROM driver_info di WHERE id = :id AND" + SOFT_DELETE_RESTRICTION;
+    public static final String GET_SOME_FREE_DRIVER_ON_CAR_IDS = "SELECT id FROM driver_info di " +
+            "WHERE car_id IS NOT NULL AND status = 'FREE' AND deleted_at IS NULL LIMIT :maxNumber";
 
     public static final String SAVE_DRIVER = "INSERT INTO driver_info (id, car_id, status) VALUES (:id, :carId, :statusName::driver_status) " +
             "ON CONFLICT (id) DO UPDATE SET car_id = :carId, status = :statusName::driver_status";

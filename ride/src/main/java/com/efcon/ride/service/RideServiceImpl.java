@@ -1,16 +1,24 @@
 package com.efcon.ride.service;
 
-import com.efcon.ride.dto.DriverResponse;
 import com.efcon.ride.dto.PassengerResponse;
 import com.efcon.ride.dto.RideRequest;
 import com.efcon.ride.dto.RideResponse;
+import com.efcon.ride.event.RideAcceptedEvent;
+import com.efcon.ride.event.RideCanceledEvent;
+import com.efcon.ride.event.RideCompletedEvent;
+import com.efcon.ride.event.RideCreatedEvent;
 import com.efcon.ride.exception.EntityNotFoundException;
 import com.efcon.ride.exception.IllegalRideStatusTransition;
+import com.efcon.ride.mapper.RideInfoMapper;
 import com.efcon.ride.mapper.RideMapper;
+import com.efcon.ride.model.DriverInfo;
+import com.efcon.ride.model.DriverStatus;
 import com.efcon.ride.model.Ride;
 import com.efcon.ride.model.RideStatus;
 import com.efcon.ride.repository.RideRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +26,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RideServiceImpl implements RideService {
+    private final ApplicationEventPublisher eventPublisher;
     private final PassengerService passengerService;
-    private final DriverService driverService;
+    private final DriverInfoService driverInfoService;
     private final RideRepository repository;
     private final RideMapper mapper;
+    private final RideInfoMapper rideInfoMapper;
 
     @Override
     public List<RideResponse> getAll() {
@@ -38,8 +48,9 @@ public class RideServiceImpl implements RideService {
     @Override
     public RideResponse create(RideRequest request) {
         PassengerResponse passenger = passengerService.get(request.passengerId());
-        Ride newRide = mapper.fromRequest(request);
-        return mapper.toResponse(repository.save(newRide));
+        Ride newRide = repository.save(mapper.fromRequest(request));
+        eventPublisher.publishEvent(new RideCreatedEvent(newRide.getId(), rideInfoMapper.toRideInfo(newRide)));
+        return mapper.toResponse(newRide);
     }
 
     @Override
@@ -56,14 +67,21 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
+    @Transactional
     public RideResponse accept(Long id, Long driverId) {
-        DriverResponse driver = driverService.get(driverId);
-        if (driver.car() == null) {
+        DriverInfo driverInfo = driverInfoService.get(driverId);
+        if (driverInfo.getCarId() == null && driverInfo.getStatus() != DriverStatus.FREE) {
             throw new IllegalRideStatusTransition("Driver with id " + driverId + " doesn't have a car");
         }
+
         Ride ride = updateRideStatus(id, RideStatus.ACCEPTED);
         ride.setDriverId(driverId);
-        return mapper.toResponse(repository.save(ride));
+
+        driverInfoService.changeDriverStatus(driverId, DriverStatus.ON_TRIP);
+        ride = repository.save(ride);
+
+        eventPublisher.publishEvent(new RideAcceptedEvent(id, driverId));
+        return mapper.toResponse(ride);
     }
 
     @Override
@@ -77,13 +95,25 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
+    @Transactional
     public RideResponse complete(Long id) {
-        return mapper.toResponse(repository.save(updateRideStatus(id, RideStatus.COMPLETED)));
+        Ride ride = updateRideStatus(id, RideStatus.COMPLETED);
+        driverInfoService.changeDriverStatus(ride.getDriverId(), DriverStatus.FREE);
+        ride = repository.save(ride);
+
+        eventPublisher.publishEvent(new RideCompletedEvent(id));
+        return mapper.toResponse(ride);
     }
 
     @Override
+    @Transactional
     public RideResponse cancel(Long id) {
-        return mapper.toResponse(repository.save(updateRideStatus(id, RideStatus.CANCELED)));
+        Ride ride = updateRideStatus(id, RideStatus.CANCELED);
+        driverInfoService.changeDriverStatus(ride.getDriverId(), DriverStatus.FREE);
+        ride = repository.save(ride);
+
+        eventPublisher.publishEvent(new RideCanceledEvent(id));
+        return mapper.toResponse(ride);
     }
 
     private Ride updateRideStatus(Long id, RideStatus newStatus) {

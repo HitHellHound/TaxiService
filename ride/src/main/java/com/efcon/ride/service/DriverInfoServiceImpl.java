@@ -8,6 +8,8 @@ import com.efcon.ride.model.DriverStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DriverInfoServiceImpl implements DriverInfoService {
@@ -17,6 +19,11 @@ public class DriverInfoServiceImpl implements DriverInfoService {
     public DriverInfo get(Long id) {
         return driverInfoDao.get(id)
                 .orElseThrow(() -> new EntityNotFoundException("DriverInfo with id " + id + " not found"));
+    }
+
+    @Override
+    public List<Long> getSomeFreeDriverIds(int maxNumber) {
+        return driverInfoDao.getSomeFreeDriverOnCarIds(maxNumber);
     }
 
     @Override
