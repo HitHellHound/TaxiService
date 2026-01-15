@@ -18,6 +18,8 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 10
       properties:
         spring.json.type.mapping: >-
           DriverCreatedEvent:com.efcon.driver.event.DriverCreatedEvent,
