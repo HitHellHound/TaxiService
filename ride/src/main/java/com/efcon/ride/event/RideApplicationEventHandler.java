@@ -17,7 +17,7 @@ public class RideApplicationEventHandler {
 
     @EventListener
     public void onRideAcceptedEvent(RideAcceptedEvent event) {
-
+        notificationService.closeNotification(event.rideId());
     }
 
     @EventListener
@@ -27,6 +27,6 @@ public class RideApplicationEventHandler {
 
     @EventListener
     public void onRideCanceledEvent(RideCanceledEvent event) {
-
+        notificationService.closeNotification(event.rideId());
     }
 }

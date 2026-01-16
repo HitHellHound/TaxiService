@@ -38,6 +38,11 @@ outbound:
 
 mq:
   ride-notifications:
+    resend:
+      rate:
+        ms: 10000
+      stale-after:
+        seconds: 60
     send:
       queue: ride-notifications.send.queue
       exchange: ride-notifications.send.exchange
