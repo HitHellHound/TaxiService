@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="create-ride-notification-status-enum" author="cie">
+        <sql>
+            CREATE TYPE ride_notification_status AS ENUM ('OPENED', 'CLOSED');
+        </sql>
+
+        <rollback>
+            DROP TYPE ride_notification_status;
+        </rollback>
+    </changeSet>
+    <changeSet id="create-ride-notification-table" author="cie">
+        <createTable tableName="ride_notification">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_ride_notification"/>
+            </column>
+
+            <column name="ride_info" type="JSON">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="ride_notification_status">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_notified_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="add-opened-ride-notification-index" author="cie">
+        <sql>
+            CREATE INDEX idx_opened_ride_notification
+            ON ride_notification(last_notified_at)
+            WHERE status = 'OPENED'
+        </sql>
+
+        <rollback>
+            DROP INDEX idx_opened_ride_notification;
+        </rollback>
+    </changeSet>
+    <changeSet id="ride-notification-schema-created-tag" author="cie">
+        <tagDatabase tag="ride_notification_schema_created"/>
+    </changeSet>
+</databaseChangeLog>

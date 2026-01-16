@@ -11,4 +11,5 @@
     <include file="init-changelog.xml" relativeToChangelogFile="true"/>
     <include file="data/001_data-insert-test-rides.xml" relativeToChangelogFile="true"/>
     <include file="schema/create-driver-info-schema.xml" relativeToChangelogFile="true"/>
+    <include file="schema/002_schema-create-ride-notification-schema.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
