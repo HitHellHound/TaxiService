@@ -25,7 +25,8 @@ telegram:
 
 mq:
   ride-notifications:
-    send: ride-notifications.send
+    send:
+      queue: ride-notifications.send.queue
 
 eureka:
   client:

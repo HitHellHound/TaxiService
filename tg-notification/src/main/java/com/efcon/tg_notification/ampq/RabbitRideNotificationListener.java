@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class RabbitRideNotificationListener {
     private final RideNotificationService notificationService;
 
-    @RabbitListener(queues = "${mq.ride-notifications.send}")
+    @RabbitListener(queues = "${mq.ride-notifications.send.queue}")
     public void receiveRideNotification(RideNotification notification) {
         notificationService.notifyDrivers(notification);
     }

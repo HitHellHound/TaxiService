@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class MQConfiguration {
     @Bean
-    public Queue notificationsToReceveQueue(@Value("mq.ride-notifications.send")  String rideNotificationsQueue) {
+    public Queue notificationsToReceveQueue(@Value("${mq.ride-notifications.send.queue}")  String rideNotificationsQueue) {
         return new Queue(rideNotificationsQueue);
     }
 
