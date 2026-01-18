@@ -31,8 +31,8 @@ public class RideNotificationRedisDao implements RideNotificationDao, LuaScriptA
 
     @Override
     public void pushRideNotificationQueue(Long driverId, Long rideId) {
-        redisTemplate.opsForList().rightPush(String.format(DRIVER_NOTIFICATION_QUEUE_TEMPLATE, driverId),
-                rideId.toString());
+        redisTemplate.opsForZSet().addIfAbsent(String.format(DRIVER_NOTIFICATION_QUEUE_TEMPLATE, driverId),
+                rideId.toString(), (double) System.currentTimeMillis());
     }
 
     @Override

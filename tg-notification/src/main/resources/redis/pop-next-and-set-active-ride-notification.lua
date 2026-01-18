@@ -9,7 +9,7 @@ if onlyIfNoneActiveFlag and redis.call('EXISTS', driverActiveNotificationKey) ==
     return false
 end
 
-local nextNotificationId = redis.call('LPOP', driverNotificationQueueKey)
+local nextNotificationId = redis.call('ZPOPMIN', driverNotificationQueueKey)[1]
 while nextNotificationId do
     local rideInfo = redis.call('GET', string.format(rideInfoKeyTemplate, nextNotificationId))
     local isAccepted = redis.call('EXISTS', string.format(rideAcceptedKeyTemplate, nextNotificationId))
@@ -17,7 +17,7 @@ while nextNotificationId do
         redis.call('SET', driverActiveNotificationKey, nextNotificationId)
         return rideInfo
     else
-        nextNotificationId = redis.call('LPOP', driverNotificationQueueKey)
+        nextNotificationId = tonumber(redis.call('ZPOPMIN', driverNotificationQueueKey))[1]
     end
 end
 
