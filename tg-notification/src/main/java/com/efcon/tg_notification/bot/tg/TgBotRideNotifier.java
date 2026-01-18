@@ -138,15 +138,22 @@ public class TgBotRideNotifier extends AbilityBot implements SpringLongPollingBo
     }
 
     private String createRideNotificationMessage(RideInfo rideInfo) {
-        return new StringBuilder("New Ride #" + rideInfo.rideId()).append('\n')
-                .append("Do you want to accept it?")
-                .toString();
+        return "New Ride #" + rideInfo.rideId() + '\n' +
+                createRideInfoBlock(rideInfo) +
+                "Do you want to accept it?";
     }
 
     private String createRideAcceptedMessage(RideInfo rideInfo) {
-        return new StringBuilder("Ride #" + rideInfo.rideId()).append(" successfully accepted").append('\n')
-                .append("INFO")
-                .toString();
+        return "Ride #" + rideInfo.rideId() + " successfully accepted" + '\n' +
+                createRideInfoBlock(rideInfo);
+    }
+
+    private String createRideInfoBlock(RideInfo rideInfo) {
+        return "INFO:\n" +
+                "Date: " + rideInfo.createdAt() + '\n' +
+                "Start address: " + rideInfo.startAddress() + '\n' +
+                "Destination address: " + rideInfo.destinationAddress() + '\n' +
+                "Price: " + rideInfo.price() + '\n';
     }
 
     @Override
