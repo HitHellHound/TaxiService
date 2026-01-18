@@ -23,15 +23,13 @@ public class RideNotificationCommandHandlerImpl implements RideNotificationComma
 
     @Override
     public void handle(AcceptRideNotificationCommand command) {
-        Optional<RideInfo> rideInfo = notificationDao.getRideInfo(command.rideId());
+        Optional<RideInfo> rideInfo = notificationDao.getRideInfoIfNotAccepted(command.rideId());
 
-        if (rideInfo.isPresent() && !notificationDao.isRideAccepted(command.rideId())) {
+        if (rideInfo.isPresent()) {
             Optional<RideResponse> rideResponse = rideService.accept(command.rideId(), command.driverId());
 
             if (rideResponse.isPresent()) {
-                notificationDao.dropRideNotificationQueue(command.driverId());
-                notificationDao.removeActiveRideNotification(command.driverId());
-                notificationDao.setRideAccepted(command.rideId());
+                notificationDao.setRideAcceptedAndFlushQueue(command.rideId(), command.driverId());
                 publisher.publishEvent(new RideAcceptedEvent(command.driverId(), rideInfo.get()));
                 return;
             }
@@ -40,8 +38,9 @@ public class RideNotificationCommandHandlerImpl implements RideNotificationComma
         publisher.publishEvent(new AcceptanceDeclinedEvent(command.driverId(), command.rideId(),
                 "Ride #" +  command.rideId() + " has already changed status"));
 
-        Optional<RideInfo> newActiveRide = notificationDao.popNextAndSetActiveRideNotification(command.driverId());
-        newActiveRide.ifPresent(newRideInfo ->
+        Optional<RideInfo> newActiveNotification = notificationDao
+                .popNextAndSetActiveRideNotification(command.driverId(), false);
+        newActiveNotification.ifPresent(newRideInfo ->
                 publisher.publishEvent(new ActiveNotificationPlacedEvent(command.driverId(), newRideInfo)));
     }
 
@@ -49,8 +48,9 @@ public class RideNotificationCommandHandlerImpl implements RideNotificationComma
     public void handle(RejectRideNotificationCommand command) {
         publisher.publishEvent(new RideRejectedEvent(command.driverId(), command.rideId()));
 
-        Optional<RideInfo> newActiveRide = notificationDao.popNextAndSetActiveRideNotification(command.driverId());
-        newActiveRide.ifPresent(rideInfo ->
+        Optional<RideInfo> newActiveNotification = notificationDao
+                .popNextAndSetActiveRideNotification(command.driverId(), false);
+        newActiveNotification.ifPresent(rideInfo ->
                 publisher.publishEvent(new ActiveNotificationPlacedEvent(command.driverId(), rideInfo)));
     }
 }

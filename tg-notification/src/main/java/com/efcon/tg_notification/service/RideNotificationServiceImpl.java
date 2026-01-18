@@ -19,14 +19,12 @@ public class RideNotificationServiceImpl implements RideNotificationService {
     @Override
     public void notifyDrivers(RideNotification notification) {
         notificationDao.addRideInfo(notification.rideInfo().rideId(), notification.rideInfo());
+        notificationDao.pushRideNotificationQueues(notification.driverIds(), notification.rideInfo().rideId());
 
         for (Long driverId: notification.driverIds()) {
-            notificationDao.pushRideNotificationQueue(driverId, notification.rideInfo().rideId() );
-            if (!notificationDao.hasActiveRideNotification(driverId)) {
-                Optional<RideInfo> newActiveRide = notificationDao.popNextAndSetActiveRideNotification(driverId);
-                newActiveRide.ifPresent(rideInfo ->
-                        publisher.publishEvent(new ActiveNotificationPlacedEvent(driverId, rideInfo)));
-            }
+            Optional<RideInfo> newActiveNotification = notificationDao.popNextAndSetActiveRideNotification(driverId, true);
+            newActiveNotification.ifPresent(rideInfo ->
+                    publisher.publishEvent(new ActiveNotificationPlacedEvent(driverId, rideInfo)));
         }
     }
 }

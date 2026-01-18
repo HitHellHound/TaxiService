@@ -3,20 +3,18 @@ package com.efcon.tg_notification.dao;
 import com.efcon.tg_notification.dto.RideInfo;
 
 import java.util.Optional;
+import java.util.Set;
 
 public interface RideNotificationDao {
     void pushRideNotificationQueue(Long driverId, Long rideId);
-    Optional<RideInfo> popNextAndSetActiveRideNotification(Long driverId);
-    void dropRideNotificationQueue(Long driverId);
+    void pushRideNotificationQueues(Set<Long> driverId, Long rideId);
+    Optional<RideInfo> popNextAndSetActiveRideNotification(Long driverId, boolean onlyIfNoneActive);
 
     Optional<Long> getActiveRideNotificationId(Long driverId);
     boolean hasActiveRideNotification(Long driverId);
-    void removeActiveRideNotification(Long driverId);
 
-    void setRideAccepted(Long rideId);
-    boolean isRideAccepted(Long rideId);
+    void setRideAcceptedAndFlushQueue(Long rideId, Long driverId);
 
     void addRideInfo(Long rideId, RideInfo rideInfo);
-    Optional<RideInfo> getRideInfo(Long rideId);
-    void removeRideInfo(Long rideId);
+    Optional<RideInfo> getRideInfoIfNotAccepted(Long rideId);
 }
