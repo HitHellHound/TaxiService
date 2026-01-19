@@ -23,7 +23,7 @@ public class RideNotificationCommandHandlerImpl implements RideNotificationComma
 
     @Override
     public void handle(AcceptRideNotificationCommand command) {
-        Optional<RideInfo> rideInfo = notificationDao.getRideInfoIfNotAccepted(command.rideId());
+        Optional<RideInfo> rideInfo = notificationDao.tryGetRideInfoForAcceptance(command.rideId(), command.driverId());
 
         if (rideInfo.isPresent()) {
             Optional<RideResponse> rideResponse = rideService.accept(command.rideId(), command.driverId());

@@ -27,6 +27,8 @@ ride-notifications:
   driver:
     queue:
       max-size: 10
+    active-notification:
+      accepting-status-valid-time-in-seconds: 30
   ride:
     info:
       ttl-minutes: 5

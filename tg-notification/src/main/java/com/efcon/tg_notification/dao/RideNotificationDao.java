@@ -10,9 +10,7 @@ public interface RideNotificationDao {
     void pushRideNotificationQueues(Set<Long> driverId, Long rideId);
     Optional<RideInfo> popNextAndSetActiveRideNotification(Long driverId, boolean onlyIfNoneActive);
 
-    Optional<Long> getActiveRideNotificationId(Long driverId);
-    boolean hasActiveRideNotification(Long driverId);
-
+    Optional<RideInfo> tryGetRideInfoForAcceptance(Long rideId, Long driverId);
     void setRideAcceptedAndFlushQueue(Long rideId, Long driverId);
 
     void addRideInfo(Long rideId, RideInfo rideInfo);

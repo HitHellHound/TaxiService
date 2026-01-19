@@ -20,6 +20,8 @@ import static com.efcon.tg_notification.dao.RedisKeyTemplates.*;
 public class RideNotificationRedisDao implements RideNotificationDao, LuaScriptAware {
     @Value("${ride-notifications.driver.queue.max-size}")
     private Integer queueMaxSize;
+    @Value("${ride-notifications.driver.active-notification.accepting-status-valid-time-in-seconds}")
+    private Integer timeToAcceptanceInSeconds;
     @Value("${ride-notifications.ride.info.ttl-minutes}")
     private Integer rideInfoTtlInMinutes;
     @Value("${ride-notifications.ride.accepted-flag.ttl-minutes}")
@@ -56,15 +58,14 @@ public class RideNotificationRedisDao implements RideNotificationDao, LuaScriptA
     }
 
     @Override
-    public Optional<Long> getActiveRideNotificationId(Long driverId) {
-        String idString = redisTemplate.opsForValue()
-                .get(String.format(DRIVER_ACTIVE_RIDE_NOTIFICATION_TEMPLATE, driverId));
-        return idString == null ? Optional.empty() : Optional.of(Long.valueOf(idString));
-    }
-
-    @Override
-    public boolean hasActiveRideNotification(Long driverId) {
-        return redisTemplate.hasKey(String.format(DRIVER_ACTIVE_RIDE_NOTIFICATION_TEMPLATE, driverId));
+    public Optional<RideInfo> tryGetRideInfoForAcceptance(Long rideId, Long driverId) {
+        String rideInfoJson = (String) redisTemplate.execute(luaScripts.get("tryGetRideInfoForAcceptance"),
+                List.of(String.format(RIDE_INFO_TEMPLATE, rideId),
+                        String.format(RIDE_ACCEPTED_TEMPLATE, rideId),
+                        String.format(DRIVER_ACTIVE_RIDE_NOTIFICATION_TEMPLATE, driverId)),
+                rideId, timeToAcceptanceInSeconds);
+        return rideInfoJson == null ? Optional.empty() :
+                Optional.of(jsonMapper.readValue(rideInfoJson, RideInfo.class));
     }
 
     @Override

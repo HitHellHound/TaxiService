@@ -51,6 +51,12 @@ public class NotificationServiceConfiguration {
     }
 
     @Bean
+    public LuaScriptWrapper tryGetRideInfoForAcceptanceScript() {
+        return new DefaultLuaScriptWrapper("tryGetRideInfoForAcceptance",
+                "redis/try-get-ride-info-for-acceptance.lua", String.class);
+    }
+
+    @Bean
     public LuaScriptWrapper setRideAcceptedAndFlushQueueScript() {
         return new DefaultLuaScriptWrapper("setRideAcceptedAndFlushQueue",
                 "redis/set-ride-accepted-and-flush-queue.lua", Void.class);
