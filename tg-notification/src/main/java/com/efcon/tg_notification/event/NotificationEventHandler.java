@@ -32,4 +32,9 @@ public class NotificationEventHandler {
     public void handleNotificationRejectedEvent(AcceptanceDeclinedEvent event) {
         notifier.sendNotificationAcceptanceDecline(event.driverId(), event.rideId(), event.reason());
     }
+
+    @EventListener
+    public void handleRideNotificationExpiredEvent(RideNotificationExpiredEvent event) {
+        notifier.sendRideNotificationExpired(event.driverId(), event.rideId());
+    }
 }

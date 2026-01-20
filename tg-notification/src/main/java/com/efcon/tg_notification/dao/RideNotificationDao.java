@@ -1,7 +1,9 @@
 package com.efcon.tg_notification.dao;
 
+import com.efcon.tg_notification.dto.ExpiredNotificationTuple;
 import com.efcon.tg_notification.dto.RideInfo;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -15,4 +17,7 @@ public interface RideNotificationDao {
 
     void addRideInfo(Long rideId, RideInfo rideInfo);
     Optional<RideInfo> getRideInfoIfNotAccepted(Long rideId);
+
+    List<ExpiredNotificationTuple> getExpiredNotifications();
+    boolean tryToExpireActiveNotification(Long driverId, Long rideId);
 }

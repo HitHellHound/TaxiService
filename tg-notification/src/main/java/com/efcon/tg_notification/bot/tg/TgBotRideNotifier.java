@@ -22,7 +22,11 @@ import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.message.Message;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static com.efcon.tg_notification.bot.tg.TgBotKeyboardFactory.NOTIFICATION_ACCEPT_CALLBACK_PREFIX;
@@ -48,11 +52,17 @@ public class TgBotRideNotifier extends AbilityBot implements SpringLongPollingBo
 
     @Override
     public void sendRideNotification(Long driverId, RideInfo rideInfo) {
-        silent.execute(SendMessage.builder()
-                .chatId(driverChatService.getChatId(driverId))
+        Long chatId = driverChatService.getChatId(driverId);
+        Optional<Message> message = silent.execute(SendMessage.builder()
+                .chatId(chatId)
                 .text(createRideNotificationMessage(rideInfo))
                 .replyMarkup(TgBotKeyboardFactory.notificationButtons(rideInfo.rideId()))
                 .build());
+        message.ifPresent(m -> {
+            Map<String, Long> activeNotificationMap = getDb().getMap("chat:" + chatId + ":active-notification");
+            activeNotificationMap.put("message-id", Long.valueOf(m.getMessageId()));
+            activeNotificationMap.put("ride-id", rideInfo.rideId());
+        });
     }
 
     @Override
@@ -76,9 +86,32 @@ public class TgBotRideNotifier extends AbilityBot implements SpringLongPollingBo
                 .build());
     }
 
+    @Override
+    public void sendRideNotificationExpired(Long driverId, Long rideId) {
+        Long chatId = driverChatService.getChatId(driverId);
+        Map<String, Long> activeNotificationMap = getDb().getMap("chat:" + chatId + ":active-notification");
+        if (Objects.equals(activeNotificationMap.get("ride-id"), rideId)
+                && activeNotificationMap.containsKey("message-id")) {
+            Integer messageId = Math.toIntExact(activeNotificationMap.get("message-id"));
+            activeNotificationMap.clear();
+            silent.execute(EditMessageText
+                    .builder()
+                    .chatId(chatId)
+                    .messageId(messageId)
+                    .text("Notification for ride #" + rideId + " expired.")
+                    .build());
+        }
+    }
+
     public Reply processDriverAccept() {
         BiConsumer<BaseAbilityBot,Update> action = (bot, upd) -> {
             Long rideId = Long.valueOf(upd.getCallbackQuery().getData().replace(NOTIFICATION_ACCEPT_CALLBACK_PREFIX, ""));
+
+            Map<String, Long> activeNotificationMap = getDb().getMap("chat:" + AbilityUtils.getChatId(upd) + ":active-notification");
+            if (Objects.equals(activeNotificationMap.get("ride-id"), rideId)) {
+                activeNotificationMap.clear();
+            }
+
             bot.getSilent().execute(EditMessageText
                     .builder()
                     .chatId(AbilityUtils.getChatId(upd))
@@ -95,6 +128,12 @@ public class TgBotRideNotifier extends AbilityBot implements SpringLongPollingBo
     public Reply processDriverReject() {
         BiConsumer<BaseAbilityBot,Update> action = (bot, upd) -> {
             Long rideId = Long.valueOf(upd.getCallbackQuery().getData().replace(NOTIFICATION_REJECT_CALLBACK_PREFIX, ""));
+
+            Map<String, Long> activeNotificationMap = getDb().getMap("chat:" + AbilityUtils.getChatId(upd) + ":active-notification");
+            if (Objects.equals(activeNotificationMap.get("ride-id"), rideId)) {
+                activeNotificationMap.clear();
+            }
+
             bot.getSilent().execute(EditMessageText
                     .builder()
                     .chatId(AbilityUtils.getChatId(upd))

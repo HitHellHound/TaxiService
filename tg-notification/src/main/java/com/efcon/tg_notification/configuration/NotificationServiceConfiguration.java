@@ -11,6 +11,7 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.List;
 
 @Configuration
 public class NotificationServiceConfiguration {
@@ -60,5 +61,17 @@ public class NotificationServiceConfiguration {
     public LuaScriptWrapper setRideAcceptedAndFlushQueueScript() {
         return new DefaultLuaScriptWrapper("setRideAcceptedAndFlushQueue",
                 "redis/set-ride-accepted-and-flush-queue.lua", Void.class);
+    }
+
+    @Bean
+    public LuaScriptWrapper getExpiredNotificationsScript() {
+        return new DefaultLuaScriptWrapper("getExpiredNotifications",
+                "redis/get-expired-notifications.lua", List.class);
+    }
+
+    @Bean
+    public LuaScriptWrapper tryToExpireActiveNotificationScript() {
+        return new DefaultLuaScriptWrapper("tryToExpireActiveNotification",
+                "redis/try-to-expire-active-notification.lua", Long.class);
     }
 }

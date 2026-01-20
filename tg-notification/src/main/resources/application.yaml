@@ -28,6 +28,8 @@ ride-notifications:
     queue:
       max-size: 10
     active-notification:
+      expire-cleaning-rate-in-ms: 5000
+      time-to-expire-in-seconds: 30
       accepting-status-valid-time-in-seconds: 30
   ride:
     info:

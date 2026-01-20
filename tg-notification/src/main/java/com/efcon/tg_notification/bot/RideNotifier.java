@@ -7,4 +7,5 @@ public interface RideNotifier {
     void sendRideAcceptedNotification(Long driverId, RideInfo rideInfo);
     void sendRideRejectedNotification(Long driverId, Long rideId);
     void sendNotificationAcceptanceDecline(Long driverId, Long rideId, String reason);
+    void sendRideNotificationExpired(Long driverId, Long rideId);
 }

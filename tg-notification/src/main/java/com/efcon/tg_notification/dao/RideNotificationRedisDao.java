@@ -1,5 +1,6 @@
 package com.efcon.tg_notification.dao;
 
+import com.efcon.tg_notification.dto.ExpiredNotificationTuple;
 import com.efcon.tg_notification.dto.RideInfo;
 import com.efcon.tg_notification.wrapper.LuaScriptWrapper;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,8 @@ import static com.efcon.tg_notification.dao.RedisKeyTemplates.*;
 public class RideNotificationRedisDao implements RideNotificationDao, LuaScriptAware {
     @Value("${ride-notifications.driver.queue.max-size}")
     private Integer queueMaxSize;
+    @Value("${ride-notifications.driver.active-notification.time-to-expire-in-seconds}")
+    private Integer timeToExpireInSeconds;
     @Value("${ride-notifications.driver.active-notification.accepting-status-valid-time-in-seconds}")
     private Integer timeToAcceptanceInSeconds;
     @Value("${ride-notifications.ride.info.ttl-minutes}")
@@ -49,9 +52,11 @@ public class RideNotificationRedisDao implements RideNotificationDao, LuaScriptA
         String rideInfoJson = (String) redisTemplate.execute(luaScripts.get("popNextAndSetActiveRideNotification"),
                 List.of(
                         String.format(DRIVER_NOTIFICATION_QUEUE_TEMPLATE, driverId),
-                        String.format(DRIVER_ACTIVE_RIDE_NOTIFICATION_TEMPLATE, driverId)
+                        String.format(DRIVER_ACTIVE_RIDE_NOTIFICATION_TEMPLATE, driverId),
+                        DRIVER_ACTIVE_RIDE_NOTIFICATION_TIMEOUTS
                 ),
-                RIDE_INFO_TEMPLATE, RIDE_ACCEPTED_TEMPLATE, onlyIfNoneActive ? "1" : "0");
+                RIDE_INFO_TEMPLATE, RIDE_ACCEPTED_TEMPLATE, onlyIfNoneActive ? "1" : "0",
+                driverId, timeToExpireInSeconds);
 
         return rideInfoJson == null ? Optional.empty() :
                 Optional.of(jsonMapper.readValue(rideInfoJson, RideInfo.class));
@@ -91,6 +96,30 @@ public class RideNotificationRedisDao implements RideNotificationDao, LuaScriptA
                         String.format(RIDE_ACCEPTED_TEMPLATE, rideId)));
         return rideInfoJson == null ? Optional.empty() :
                 Optional.of(jsonMapper.readValue(rideInfoJson, RideInfo.class));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<ExpiredNotificationTuple> getExpiredNotifications() {
+        List<String> result = (List<String>) redisTemplate.execute(luaScripts.get("getExpiredNotifications"),
+                List.of(DRIVER_ACTIVE_RIDE_NOTIFICATION_TIMEOUTS));
+        List<ExpiredNotificationTuple> tuples = new ArrayList<>();
+        if (result == null){
+            return tuples;
+        }
+        for (String expiredNotification : result) {
+            String[] tuple = expiredNotification.split(":");
+            tuples.add(new ExpiredNotificationTuple(Long.valueOf(tuple[0]), Long.valueOf(tuple[1])));
+        }
+        return tuples;
+    }
+
+    @Override
+    public boolean tryToExpireActiveNotification(Long driverId, Long rideId) {
+        Long result = (Long) redisTemplate.execute(luaScripts.get("tryToExpireActiveNotification"),
+                    List.of(String.format(DRIVER_ACTIVE_RIDE_NOTIFICATION_TEMPLATE, driverId)),
+                    rideId);
+        return result != null && result == 1L;
     }
 
     @Override
