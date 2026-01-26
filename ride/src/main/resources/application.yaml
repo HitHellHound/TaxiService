@@ -14,6 +14,39 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.xml
 
+  kafka:
+    listener:
+      ack-mode: manual_immediate
+    consumer:
+      group-id: ride-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.efcon.ride.external.event.*"
+        spring.json.type.mapping: >-
+          DriverCreatedEvent:com.efcon.ride.external.event.DriverCreatedEvent,
+          DriverDeletedEvent:com.efcon.ride.external.event.DriverDeletedEvent,
+          DriverChangedEvent:com.efcon.ride.external.event.DriverChangedEvent,
+          DriverShiftEndedEvent:com.efcon.ride.external.event.DriverShiftEndedEvent,
+          DriverShiftStartedEvent:com.efcon.ride.external.event.DriverShiftStartedEvent
+
+outbound:
+  events:
+    kafka:
+      topic:
+        driver-events: driver-events
+
+mq:
+  ride-notifications:
+    resend:
+      rate:
+        ms: 10000
+      stale-after:
+        seconds: 60
+    send:
+      queue: ride-notifications.send.queue
+      exchange: ride-notifications.send.exchange
+
 grpc:
   server:
     port: &grpc_port 9090
