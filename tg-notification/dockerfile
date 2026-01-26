@@ -1,0 +1,5 @@
+FROM eclipse-temurin:17-jdk-alpine
+COPY target/tg-notification-?.?.?-SNAPSHOT.jar app.jar
+RUN mkdir config
+VOLUME /config
+ENTRYPOINT ["java","-jar","/app.jar"]

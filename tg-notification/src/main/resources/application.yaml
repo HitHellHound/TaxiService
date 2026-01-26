@@ -1,0 +1,48 @@
+spring:
+  config:
+    import: file:config/secrets.yaml
+
+  application:
+    name: tg-notification
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+
+  cloud:
+    service-registry:
+      auto-registration:
+        enabled: false
+
+telegram:
+  bot:
+    username: TaxiDriverNotify
+
+ride-notifications:
+  driver:
+    queue:
+      max-size: 10
+    active-notification:
+      expire-cleaning-rate-in-ms: 5000
+      time-to-expire-in-seconds: 30
+      accepting-status-valid-time-in-seconds: 30
+  ride:
+    info:
+      ttl-minutes: 5
+    accepted-flag:
+      ttl-minutes: 15
+
+mq:
+  ride-notifications:
+    send:
+      queue: ride-notifications.send.queue
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: true
