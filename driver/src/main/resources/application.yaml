@@ -13,3 +13,22 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.xml
+
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 10
+      properties:
+        spring.json.type.mapping: >-
+          DriverCreatedEvent:com.efcon.driver.event.DriverCreatedEvent,
+          DriverDeletedEvent:com.efcon.driver.event.DriverDeletedEvent,
+          DriverChangedEvent:com.efcon.driver.event.DriverChangedEvent,
+          DriverShiftEndedEvent:com.efcon.driver.event.DriverShiftEndedEvent,
+          DriverShiftStartedEvent:com.efcon.driver.event.DriverShiftStartedEvent
+
+message-broker:
+  kafka:
+    topic:
+      driver-events: driver-events
