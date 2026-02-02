@@ -67,9 +67,9 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public DriverResponse attachCar(Long driverId, Long carId) {
         Driver driver = repository.findById(driverId)
-                .orElseThrow(() -> new EntityNotFoundException("Driver  with id " + driverId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Driver with id " + driverId + " not found"));
         Car car = carRepository.findById(carId)
-                .orElseThrow(() -> new EntityNotFoundException("Car  with id " + carId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Car with id " + carId + " not found"));
         driver.setCar(car);
         driver = repository.save(driver);
 
@@ -80,7 +80,7 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public void detachCar(Long driverId) {
         Driver driver = repository.findById(driverId)
-                .orElseThrow(() -> new EntityNotFoundException("Driver  with id " + driverId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Driver with id " + driverId + " not found"));
         driver.setCar(null);
         repository.save(driver);
 
