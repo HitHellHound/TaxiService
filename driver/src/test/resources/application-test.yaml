@@ -3,3 +3,18 @@ eureka:
     enabled: false
     register-with-eureka: false
     fetch-registry: false
+
+spring:
+  kafka:
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: com.efcon.driver.event
+        spring.json.type.mapping: >-
+          DriverCreatedEvent:com.efcon.driver.event.DriverCreatedEvent,
+          DriverDeletedEvent:com.efcon.driver.event.DriverDeletedEvent,
+          DriverChangedEvent:com.efcon.driver.event.DriverChangedEvent,
+          DriverShiftEndedEvent:com.efcon.driver.event.DriverShiftEndedEvent,
+          DriverShiftStartedEvent:com.efcon.driver.event.DriverShiftStartedEvent
