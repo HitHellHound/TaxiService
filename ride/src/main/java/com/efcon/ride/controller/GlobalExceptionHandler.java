@@ -3,7 +3,7 @@ package com.efcon.ride.controller;
 import com.efcon.ride.exception.EntityNotFoundException;
 import com.efcon.ride.exception.ExternalBadRequestException;
 import com.efcon.ride.exception.ExternalServiceException;
-import com.efcon.ride.exception.IllegalRideStatusTransition;
+import com.efcon.ride.exception.IllegalRideStatusTransitionException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(exception = {
-            IllegalRideStatusTransition.class,
+            IllegalRideStatusTransitionException.class,
             ExternalBadRequestException.class})
     public String illegalStatusTransition(Exception exception) {
         return exception.getMessage();

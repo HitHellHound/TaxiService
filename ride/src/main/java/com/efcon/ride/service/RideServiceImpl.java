@@ -8,7 +8,7 @@ import com.efcon.ride.event.RideCanceledEvent;
 import com.efcon.ride.event.RideCompletedEvent;
 import com.efcon.ride.event.RideCreatedEvent;
 import com.efcon.ride.exception.EntityNotFoundException;
-import com.efcon.ride.exception.IllegalRideStatusTransition;
+import com.efcon.ride.exception.IllegalRideStatusTransitionException;
 import com.efcon.ride.mapper.RideInfoMapper;
 import com.efcon.ride.mapper.RideMapper;
 import com.efcon.ride.model.DriverInfo;
@@ -70,8 +70,10 @@ public class RideServiceImpl implements RideService {
     @Transactional
     public RideResponse accept(Long id, Long driverId) {
         DriverInfo driverInfo = driverInfoService.get(driverId);
-        if (driverInfo.getCarId() == null && driverInfo.getStatus() != DriverStatus.FREE) {
-            throw new IllegalRideStatusTransition("Driver with id " + driverId + " doesn't have a car");
+        if (driverInfo.getCarId() == null) {
+            throw new IllegalRideStatusTransitionException("Driver with id " + driverId + " doesn't have a car");
+        } else if (driverInfo.getStatus() != DriverStatus.FREE) {
+            throw new IllegalRideStatusTransitionException("Driver with id " + driverId + " already on trip");
         }
 
         Ride ride = updateRideStatus(id, RideStatus.ACCEPTED);
@@ -109,7 +111,9 @@ public class RideServiceImpl implements RideService {
     @Transactional
     public RideResponse cancel(Long id) {
         Ride ride = updateRideStatus(id, RideStatus.CANCELED);
-        driverInfoService.changeDriverStatus(ride.getDriverId(), DriverStatus.FREE);
+        if (ride.getDriverId() != null) {
+            driverInfoService.changeDriverStatus(ride.getDriverId(), DriverStatus.FREE);
+        }
         ride = repository.save(ride);
 
         eventPublisher.publishEvent(new RideCanceledEvent(id));
@@ -120,7 +124,7 @@ public class RideServiceImpl implements RideService {
         Ride ride = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ride with id " + id + " not found"));
         if (!RideStatus.isTransitionAllowed(ride.getStatus(), newStatus)) {
-            throw new IllegalRideStatusTransition("Status transition from " + ride.getStatus()
+            throw new IllegalRideStatusTransitionException("Status transition from " + ride.getStatus()
                     + " to " + newStatus + " not allowed");
         }
         ride.setStatus(newStatus);
