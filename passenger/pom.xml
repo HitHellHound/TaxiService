@@ -156,11 +156,7 @@
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.12</version>
 				<configuration>
-					<includes>
-						<include>${project.package.path}/service/**/*</include>
-						<include>${project.package.path}/controller/**/*Controller*</include>
-						<include>${project.package.path}/repository/**/*</include>
-					</includes>
+					<append>false</append>
 				</configuration>
 				<executions>
 					<execution>
@@ -174,6 +170,13 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<includes>
+								<include>${project.package.path}/service/**/*</include>
+								<include>${project.package.path}/controller/**/*Controller*</include>
+								<include>${project.package.path}/repository/**/*</include>
+							</includes>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
