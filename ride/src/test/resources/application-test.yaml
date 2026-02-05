@@ -1,0 +1,22 @@
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+spring:
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 10
+      properties:
+        spring.json.type.mapping: >-
+          DriverCreatedEvent:com.efcon.ride.external.event.DriverCreatedEvent,
+          DriverDeletedEvent:com.efcon.ride.external.event.DriverDeletedEvent,
+          DriverChangedEvent:com.efcon.ride.external.event.DriverChangedEvent,
+          DriverShiftEndedEvent:com.efcon.ride.external.event.DriverShiftEndedEvent,
+          DriverShiftStartedEvent:com.efcon.ride.external.event.DriverShiftStartedEvent
