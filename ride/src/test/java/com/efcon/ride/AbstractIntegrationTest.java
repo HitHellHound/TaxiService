@@ -9,8 +9,16 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.wiremock.integrations.testcontainers.WireMockContainer;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -30,9 +38,18 @@ public class AbstractIntegrationTest {
     @ServiceConnection
     static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine");
 
+    static final WireMockContainer wiremock = new WireMockContainer("wiremock/wiremock:latest")
+            .withCliArg("--global-response-templating")
+            .withExtensions("Faker",
+                    Collections.singleton("org.wiremock.RandomExtension"),
+                    getWiremockJars())
+            .withMappingFromResource("wiremock/passenger.json")
+            .withFileFromResource("wiremock/responses/get-all-passengers.json.hbs");
+
     static {
         environment.start();
         postgres.start();
+        wiremock.start();
     }
 
     @DynamicPropertySource
@@ -48,9 +65,23 @@ public class AbstractIntegrationTest {
                 () -> environment.getServicePort(RABBITMQ_SERVICE_NAME, 5672));
     }
 
+    @DynamicPropertySource
+    static void wiremockProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.cloud.discovery.client.simple.instances.passenger[0].uri", wiremock::getBaseUrl);
+    }
+
     public static String getKafkaBootstrapServers() {
         return String.format("%s:%d",
                 environment.getServiceHost(KAFKA_SERVICE_NAME, 9092),
                 environment.getServicePort(KAFKA_SERVICE_NAME, 9092));
+    }
+
+    private static List<File> getWiremockJars() {
+        Path dir = Paths.get("target", "test-wiremock-extension");
+        try {
+            return Files.list(dir).map(Path::toFile).toList();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

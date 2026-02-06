@@ -1,0 +1,10 @@
+[
+{{#each (range 1 9)}}
+    {
+        "id": {{this}},
+        "name": "{{ random 'Name.fullName' }}",
+        "email": "{{ random 'Internet.emailAddress' }}",
+        "phone": "+37529{{ randomValue length=7 type='NUMERIC' }}"
+    }{{#unless @last}},{{/unless}}
+{{/each}}
+]

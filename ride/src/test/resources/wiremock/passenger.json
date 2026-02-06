@@ -1,0 +1,147 @@
+{
+  "mappings": [
+    {
+      "priority": 1,
+      "name": "Get existing passenger by id",
+      "request": {
+        "method": "GET",
+        "urlPattern": "/api/v1/passengers/([1-9])"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "id": "{{ request.path.[3] }}",
+          "name": "{{ random 'Name.fullName' }}",
+          "email": "{{ random 'Internet.emailAddress' }}",
+          "phone": "+37529{{ randomValue length=7 type='NUMERIC' }}"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "Get non existing passenger",
+      "request": {
+        "method": "GET",
+        "urlPathTemplate": "/api/v1/passengers/{passengerId}"
+      },
+      "response": {
+        "status": 404,
+        "body": "Passenger with id {{request.path.passengerId}} not found"
+      }
+    },
+    {
+      "name": "Get all passengers",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/passengers"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "wiremock_responses_get-all-passengers.json.hbs",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "Create passenger",
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/passengers",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$.name"
+          },
+          {
+            "matchesJsonPath": "$.email",
+            "matches": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+          },
+          {
+            "matchesJsonPath": "$.phone",
+            "matches": "\\+375(25|29|33|44)\\d{7}"
+          }
+        ]
+      },
+      "response": {
+        "status": 201,
+        "jsonBody": {
+          "id": "{{ randomValue length=2 type='NUMERIC' }}",
+          "name": "{{jsonPath request.body '$.name'}}",
+          "email": "{{jsonPath request.body '$.email'}}",
+          "phone": "{{jsonPath request.body '$.phone'}}"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "priority": 1,
+      "name": "Update existing passenger",
+      "request": {
+        "method": "PUT",
+        "urlPattern": "/api/v1/passengers/([1-9])",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$.name"
+          },
+          {
+            "matchesJsonPath": "$.email",
+            "matches": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+          },
+          {
+            "matchesJsonPath": "$.phone",
+            "matches": "\\+375(25|29|33|44)\\d{7}"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "id": "{{ request.path.[3] }}",
+          "name": "{{jsonPath request.body '$.name'}}",
+          "email": "{{jsonPath request.body '$.email'}}",
+          "phone": "{{jsonPath request.body '$.phone'}}"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "name": "Update non existing passenger",
+      "request": {
+        "method": "PUT",
+        "urlPathTemplate": "/api/v1/passengers/{passengerId}"
+      },
+      "response": {
+        "status": 404,
+        "body": "Passenger with id {{request.path.passengerId}} not found"
+      }
+    },
+    {
+      "name": "Delete passenger by id",
+      "request": {
+        "method": "DELETE",
+        "urlPathTemplate": "/api/v1/passengers/{passengerId}"
+      },
+      "response": {
+        "status": 204
+      }
+    }
+  ]
+}
+
+
