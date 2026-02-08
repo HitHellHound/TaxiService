@@ -7,7 +7,10 @@ import com.efcon.ride.dto.RideNotification;
 import com.efcon.ride.model.DriverInfo;
 import com.efcon.ride.model.DriverStatus;
 import net.datafaker.Faker;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.FanoutExchange;
@@ -17,6 +20,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.simple.JdbcClient;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -29,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.awaitility.Awaitility.await;
 
+@Execution(ExecutionMode.SAME_THREAD)
 public class RideNotificationServiceIntegrationTest extends AbstractIntegrationTest {
     private final Faker faker = new Faker();
 
@@ -53,6 +58,9 @@ public class RideNotificationServiceIntegrationTest extends AbstractIntegrationT
 
     @Value("${mq.ride-notifications.resend.stale-after.seconds}")
     private Integer notificationStaleAfter;
+
+    @Autowired
+    private JdbcClient jdbcClient;
 
     @Test
     void shouldOpenRideNotificationAndPostIt() {
@@ -181,6 +189,11 @@ public class RideNotificationServiceIntegrationTest extends AbstractIntegrationT
                             .containsExactly(ride.rideId(), ride.passengerId(), ride.startAddress(),
                                     ride.destinationAddress(), ride.price());
                 });
+    }
+
+    @AfterEach
+    void clearRideNotifications() {
+        jdbcClient.sql("TRUNCATE TABLE ride_notification").update();
     }
 
     private RideInfo createTestRideInfo() {

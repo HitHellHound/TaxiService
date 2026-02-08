@@ -25,7 +25,7 @@ import java.util.List;
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(TestConfig.class)
-public class AbstractIntegrationTest {
+public abstract class AbstractIntegrationTest {
     static final String KAFKA_SERVICE_NAME = "kafka";
     static final String RABBITMQ_SERVICE_NAME = "rabbitmq";
     static final String HOST_IP = DockerClientFactory.instance().dockerHostIpAddress();

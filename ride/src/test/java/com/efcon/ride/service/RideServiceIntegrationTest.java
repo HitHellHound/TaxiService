@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -28,6 +29,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 
+@Transactional
 public class RideServiceIntegrationTest extends AbstractIntegrationTest {
     private static final Long nonExistingRideId = Long.MAX_VALUE;
     private static final Long maxExistingPassengerId = 9L;
