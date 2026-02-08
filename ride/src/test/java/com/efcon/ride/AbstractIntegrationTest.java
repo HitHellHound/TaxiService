@@ -1,11 +1,13 @@
 package com.efcon.ride;
 
+import com.efcon.ride.service.RideNotificationService;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -27,6 +29,9 @@ public class AbstractIntegrationTest {
     static final String KAFKA_SERVICE_NAME = "kafka";
     static final String RABBITMQ_SERVICE_NAME = "rabbitmq";
     static final String HOST_IP = DockerClientFactory.instance().dockerHostIpAddress();
+
+    @MockitoSpyBean
+    private RideNotificationService rideNotificationServiceSpy;
 
     static final DockerComposeContainer<?> environment =
             new DockerComposeContainer<>(new File("../compose.yaml"))
@@ -83,5 +88,9 @@ public class AbstractIntegrationTest {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    protected RideNotificationService getRideNotificationServiceSpy() {
+        return this.rideNotificationServiceSpy;
     }
 }
