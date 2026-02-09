@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.FanoutExchange;
@@ -33,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.awaitility.Awaitility.await;
 
+@ResourceLock("RIDE_NOTIFICATION")
 @Execution(ExecutionMode.SAME_THREAD)
 public class RideNotificationServiceIntegrationTest extends AbstractIntegrationTest {
     private final Faker faker = new Faker();
@@ -157,6 +159,56 @@ public class RideNotificationServiceIntegrationTest extends AbstractIntegrationT
                 .filter(driverInfo -> driverInfo.getCarId() != null && driverInfo.getStatus() == DriverStatus.FREE)
                 .map(DriverInfo::getId)
                 .toList();
+
+        await().pollDelay(notificationStaleAfter + 1, TimeUnit.SECONDS)
+                .untilAsserted(() -> rideNotificationService.resendStaleNotifications());
+
+        await().atMost(10, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    var notifications = getAllNotificationsFromQueue(testQueue);
+
+                    assertThat(notifications)
+                            .filteredOn(rideNotification ->
+                                    rideNotification.rideInfo() != null &&
+                                            Objects.equals(rideNotification.rideInfo().rideId(), ride.rideId()))
+                            .first()
+                            .isNotNull()
+                            .satisfies(rideNotification ->
+                                    assertThat(rideNotification.driverIds())
+                                            .isNotNull()
+                                            .isNotEmpty()
+                                            .containsAll(freeDriversOnCars)
+                            )
+                            .extracting(RideNotification::rideInfo)
+                            .returns(ride.rideId(), RideInfo::rideId)
+                            .satisfies(rideInfo ->
+                                    assertThat(rideInfo.createdAt())
+                                            .isCloseTo(ride.createdAt(), within(1, ChronoUnit.SECONDS))
+                            )
+                            .extracting(RideInfo::rideId, RideInfo::passengerId, RideInfo::startAddress,
+                                    RideInfo::destinationAddress, RideInfo::price)
+                            .doesNotContainNull()
+                            .containsExactly(ride.rideId(), ride.passengerId(), ride.startAddress(),
+                                    ride.destinationAddress(), ride.price());
+                });
+    }
+
+    @Test
+    void shouldMakeMakeNotificationsFresh() {
+        var ride = createTestRideInfo();
+        rideNotificationService.notifyDrivers(ride);
+
+        var drivers = createTestDrivers();
+        drivers.forEach(driverInfoService::save);
+        var freeDriversOnCars = drivers.stream()
+                .filter(driverInfo -> driverInfo.getCarId() != null && driverInfo.getStatus() == DriverStatus.FREE)
+                .map(DriverInfo::getId)
+                .toList();
+
+        await().pollDelay(notificationStaleAfter + 1, TimeUnit.SECONDS)
+                .untilAsserted(() -> rideNotificationService.resendStaleNotifications());
+
+        var testQueue = createTestQueue();
 
         await().pollDelay(notificationStaleAfter + 1, TimeUnit.SECONDS)
                 .untilAsserted(() -> rideNotificationService.resendStaleNotifications());
