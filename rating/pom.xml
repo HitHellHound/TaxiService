@@ -34,6 +34,8 @@
 		<net.devh.version>3.1.0.RELEASE</net.devh.version>
 		<com.google.protobuf.version>3.25.3</com.google.protobuf.version>
 		<io.grpc.version>1.63.0</io.grpc.version>
+		<org.wiremock.integrations.testcontainers>1.0-alpha-13</org.wiremock.integrations.testcontainers>
+		<net.datafaker.version>2.5.3</net.datafaker.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -55,6 +57,11 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-maven-plugin</artifactId>
+			<version>4.31.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.liquibase.ext</groupId>
@@ -92,6 +99,43 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mongodb</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.wiremock.integrations.testcontainers</groupId>
+			<artifactId>wiremock-testcontainers-module</artifactId>
+			<version>${org.wiremock.integrations.testcontainers}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.datafaker</groupId>
+			<artifactId>datafaker</artifactId>
+			<version>${net.datafaker.version}</version>
 			<scope>test</scope>
 		</dependency>
 

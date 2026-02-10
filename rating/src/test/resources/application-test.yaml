@@ -1,0 +1,12 @@
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+spring:
+  autoconfigure:
+    exclude:
+      - net.devh.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration
+  liquibase:
+    enabled: false
