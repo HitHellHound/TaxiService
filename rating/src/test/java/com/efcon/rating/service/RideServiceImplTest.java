@@ -43,7 +43,7 @@ class RideServiceImplTest {
     }
 
     @Test
-    void getShouldNotGrpcClientExceptions() {
+    void getShouldNotProcessGrpcClientExceptions() {
         var rideId = 1L;
         Mockito.when(client.getRideById(rideId)).thenThrow(new EntityNotFoundException(""));
 

@@ -3,9 +3,12 @@ package com.efcon.rating.repository;
 import com.efcon.rating.AbstractIntegrationTest;
 import com.efcon.rating.model.Rating;
 import net.datafaker.Faker;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.Random;
 
@@ -18,6 +21,9 @@ class RatingRepositoryIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private RatingRepository ratingRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Test
     void shouldSaveOnlyPassengerScore() {
@@ -128,5 +134,10 @@ class RatingRepositoryIntegrationTest extends AbstractIntegrationTest {
         rating.setPassengerScore(6);
         assertThatThrownBy(() -> ratingRepository.save(rating))
                 .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @AfterEach
+    void clearCollection() {
+        mongoTemplate.remove(new Query(), Rating.class);
     }
 }
