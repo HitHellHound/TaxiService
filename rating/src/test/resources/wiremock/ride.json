@@ -1,0 +1,91 @@
+{
+  "mappings": [
+    {
+      "priority": 1,
+      "name": "Get existing ride with Completed status",
+      "request": {
+        "method": "POST",
+        "urlPath": "/RideGRPCService/GetRideById",
+        "bodyPatterns": [
+          {
+            "equalToJson": "{ \"id\":  \"1\" }"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "ride": {
+            "id": "{{ jsonPath request.body '$.id' }}",
+            "driver_id": "1",
+            "passenger_id": "1",
+            "start_address": "{{ random 'Address.fullAddress' }}",
+            "destination_address": "{{ random 'Address.fullAddress' }}",
+            "status": "COMPLETED",
+            "created_at": "2025-10-27T10:00:00Z",
+            "price": {
+              "value": "15.50"
+            }
+          }
+        },
+        "headers": {
+          "grpc-status-name": "OK"
+        }
+      }
+    },
+    {
+      "priority": 2,
+      "name": "Get existing ride with Accepted status",
+      "request": {
+        "method": "POST",
+        "urlPath": "/RideGRPCService/GetRideById",
+        "bodyPatterns": [
+          {
+            "equalToJson": "{ \"id\":  \"2\" }"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "ride": {
+            "id": "{{ jsonPath request.body '$.id' }}",
+            "driver_id": "1",
+            "passenger_id": "1",
+            "start_address": "{{ random 'Address.fullAddress' }}",
+            "destination_address": "{{ random 'Address.fullAddress' }}",
+            "status": "ACCEPTED",
+            "created_at": "2025-11-27T15:00:00Z",
+            "price": {
+              "value": "15.50"
+            }
+          }
+        },
+        "headers": {
+          "grpc-status-name": "OK"
+        }
+      }
+    },
+    {
+      "priority": 5,
+      "name": "Get non existing ride",
+      "request": {
+        "method": "POST",
+        "urlPath": "/RideGRPCService/GetRideById",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$.id"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{}",
+        "headers": {
+          "grpc-status-name": "NOT_FOUND",
+          "grpc-message": "Ride with {{ jsonPath request.body '$.id' }} ID was not found"
+        }
+      }
+    }
+  ]
+}

@@ -231,14 +231,54 @@
 				<configuration>
 					<protocArtifact>com.google.protobuf:protoc:${com.google.protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
 					<pluginId>grpc-java</pluginId>
+					<writeDescriptorSet>true</writeDescriptorSet>
+					<includeDependenciesInDescriptorSet>true</includeDependenciesInDescriptorSet>
+					<descriptorSetFileName>RideService.dsc</descriptorSetFileName>
 					<pluginArtifact>io.grpc:protoc-gen-grpc-java:${io.grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
 				</configuration>
 				<executions>
 					<execution>
+						<id>standard-compile</id>
 						<goals>
 							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>grpc-compile</id>
+						<goals>
 							<goal>compile-custom</goal>
 						</goals>
+						<configuration>
+							<writeDescriptorSet>false</writeDescriptorSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.wiremock</groupId>
+									<artifactId>wiremock-grpc-extension-standalone</artifactId>
+									<version>0.11.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.wiremock.extensions</groupId>
+									<artifactId>wiremock-faker-extension-standalone</artifactId>
+									<version>0.2.0</version>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${project.build.directory}/test-wiremock-extension</outputDirectory>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
